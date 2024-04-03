@@ -1,0 +1,72 @@
+{
+  "name": "signal0ne",
+  "displayName": "Signal0ne",
+  "description": "AI debugging assistant",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.87.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "signal0ne.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "signal0ne.addCodeAsContext",
+        "title": "Add code as context"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "editorFocus",
+          "command": "signal0ne.addCodeAsContext",
+          "group": "navigation"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "signal0ne",
+          "title": "Signal0ne",
+          "icon": "resources/signal_img_logo.svg"
+        }
+      ]
+    },
+    "views": {
+      "signal0ne": [
+        {
+          "id": "signal0ne",
+          "name": "Signal0ne",
+          "icon": "resources/signal_img_logo.svg"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.87.0",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "18.x",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
+    "eslint": "^8.57.0",
+    "typescript": "^5.3.3",
+    "@vscode/test-cli": "^0.0.8",
+    "@vscode/test-electron": "^2.3.9"
+  }
+}
