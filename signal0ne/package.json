@@ -45,12 +45,15 @@
         {
           "id": "signal0ne",
           "name": "Signal0ne",
+          "type": "webview",
           "icon": "resources/signal_img_logo.svg"
         }
       ]
     }
   },
   "scripts": {
+    "start:ui": "cd ui && npm run start",
+    "build:ui": "cd ui && npm run build",
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
