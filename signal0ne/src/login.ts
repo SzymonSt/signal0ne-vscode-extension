@@ -1,6 +1,6 @@
 import * as vsc from 'vscode';
 import { basename, dirname, join } from 'path';
-import {getPort} from 'get-port-please';
+import { Signal0neProvider } from './auth/signal0ne.provider';
 
 export interface LoginDataNode {
     label: string;
@@ -52,7 +52,7 @@ export class LoginDataProvider implements vsc.TreeDataProvider<LoginDataNode>, v
 export class Login{
     private loginView: vsc.TreeView<LoginDataNode>;
 
-    constructor(context: vsc.ExtensionContext){
+    constructor(context: vsc.ExtensionContext, signal0neProvider: Signal0neProvider){
         const loginDataProvider = new LoginDataProvider();
 
         context.subscriptions.push(vsc.workspace.registerTextDocumentContentProvider('login', loginDataProvider));
@@ -60,26 +60,9 @@ export class Login{
         this.loginView = vsc.window.createTreeView('signal0ne', {treeDataProvider: loginDataProvider, showCollapseAll: true});
 
         vsc.commands.registerCommand('signal0ne.login', async (node: LoginDataNode) => {
-            const port = await getPort();
-            const uri = vsc.Uri.parse(`http://localhost:8088?callbackUrl=http://localhost:${port}`);
-            vsc.env.openExternal(uri);
-            let token = await this.login(port);
-            console.log('token', token);
+            signal0neProvider.createSession([]);
         });
     }
 
-    async login(port: any): Promise<string> {
 
-        const token = await new Promise<string>(async (resolve, reject) => {
-            var server = require('http').createServer(async (req: any, res: any) => {
-              const requestToken = new URL(req.url, 'http://localhost').searchParams.get('token');
-              if(requestToken){
-                resolve(requestToken);
-                res.end('Login successful! You can now close this tab.');
-                server.close();
-              }
-            }).listen(port);
-          });
-        return token;
-    }
 }

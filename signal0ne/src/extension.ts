@@ -3,13 +3,18 @@
 import * as vscode from 'vscode';
 import axios from 'axios';
 import { Login } from './login';
+import { Signal0neProvider } from './auth/signal0ne.provider';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-    new Login(context);
+    const signal0neProvider = new Signal0neProvider(context);
+    context.subscriptions.push(
+        signal0neProvider,
+    )
+    new Login(context, signal0neProvider);
 
-    
+
 }
 
 // This method is called when your extension is deactivated

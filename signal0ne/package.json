@@ -66,9 +66,11 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@types/uuid": "^9.0.8",
     "axios": "^1.6.8",
     "get-port": "^7.1.0",
     "get-port-please": "^3.1.2",
-    "server-destroy": "^1.0.1"
+    "server-destroy": "^1.0.1",
+    "uuid": "^9.0.1"
   }
 }
