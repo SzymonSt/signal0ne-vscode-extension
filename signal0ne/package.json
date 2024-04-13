@@ -14,23 +14,10 @@
   "contributes": {
     "commands": [
       {
-        "command": "signal0ne.helloWorld",
-        "title": "Hello World"
-      },
-      {
-        "command": "signal0ne.addCodeAsContext",
+        "command": "signal0ne.login",
         "title": "Add code as context"
       }
     ],
-    "menus": {
-      "editor/context": [
-        {
-          "when": "editorFocus",
-          "command": "signal0ne.addCodeAsContext",
-          "group": "navigation"
-        }
-      ]
-    },
     "viewsContainers": {
       "activitybar": [
         {
@@ -45,11 +32,17 @@
         {
           "id": "signal0ne",
           "name": "Signal0ne",
-          "type": "webview",
+          "type": "tree",
           "icon": "resources/signal_img_logo.svg"
         }
       ]
-    }
+    },
+    "viewsWelcome": [
+      {
+        "view": "signal0ne",
+        "contents": "In order to use Signal0ne, you need to sign in."
+      }
+    ]
   },
   "scripts": {
     "start:ui": "cd ui && npm run start",
@@ -73,6 +66,9 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "axios": "^1.6.8"
+    "axios": "^1.6.8",
+    "get-port": "^7.1.0",
+    "get-port-please": "^3.1.2",
+    "server-destroy": "^1.0.1"
   }
 }
