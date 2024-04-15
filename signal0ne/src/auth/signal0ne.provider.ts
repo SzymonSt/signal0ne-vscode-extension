@@ -13,6 +13,9 @@ export class Signal0neProvider implements vsc.AuthenticationProvider, vsc.Dispos
     private _sessionChangeEmitter = new vsc.EventEmitter<vsc.AuthenticationProviderAuthenticationSessionsChangeEvent>();
     private _disposable: vsc.Disposable;
 
+    private _onDidAuthenticate = new vsc.EventEmitter<void>();
+    readonly onDidAuthenticate: vsc.Event<void> = this._onDidAuthenticate.event;
+
     constructor(private context: vsc.ExtensionContext) {
       this._disposable = vsc.Disposable.from(
         vsc.authentication.registerAuthenticationProvider('signal0ne', 'Signal0ne', this, {supportsMultipleAccounts: false})
@@ -39,6 +42,7 @@ export class Signal0neProvider implements vsc.AuthenticationProvider, vsc.Dispos
         await this.context.secrets.store(SESSION_SECRET_KEY, JSON.stringify([session]));
         await this.context.secrets.store(REFRESH_TOKEN_KEY, tokenPair.refreshToken);
         this._sessionChangeEmitter.fire({added: [session], removed: [], changed: []});
+        this._onDidAuthenticate.fire();
         console.log('Session created', session.accessToken);
         return session;
       }catch(err){
@@ -86,6 +90,7 @@ export class Signal0neProvider implements vsc.AuthenticationProvider, vsc.Dispos
               id: uuid.v4(),
               accessToken: tokenPair.accessToken,
               scopes: scopes,
+              //To be parametrized with user details
               account: {label: 'Signal0ne', id: 'signal0ne'}
             }
             await this.context.secrets.store(SESSION_SECRET_KEY, JSON.stringify([newSession]));

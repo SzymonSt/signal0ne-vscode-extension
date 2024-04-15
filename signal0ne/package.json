@@ -34,6 +34,12 @@
           "name": "Signal0ne",
           "type": "tree",
           "icon": "resources/signal_img_logo.svg"
+        },
+        {
+          "id": "signal0neIssue",
+          "name": "Issues",
+          "type": "tree",
+          "icon": "resources/signal_img_logo.svg"
         }
       ]
     },

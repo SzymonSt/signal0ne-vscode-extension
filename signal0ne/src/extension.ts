@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Login } from './login';
 import { Signal0neProvider } from './auth/signal0ne.provider';
 import { jwtDecode } from "jwt-decode";
+import { Issues } from './issues';
 
 const TOKEN_REFRESH_INTERVAL = 1000 * 60;
 const TOKEN_REFRESH_TIMEOUT_THRESHOLD = 1000 * 60 * 3;
@@ -14,6 +15,9 @@ export const API_URL = 'http://localhost:8080/api';
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
     const signal0neProvider = new Signal0neProvider(context);
+    context.subscriptions.push(
+        signal0neProvider,
+    )
 
     setInterval(async () => {
         const sessions = await signal0neProvider.getSessions();
@@ -30,12 +34,12 @@ export function activate(context: vscode.ExtensionContext) {
         }           
     }, TOKEN_REFRESH_INTERVAL)
 
-    context.subscriptions.push(
-        signal0neProvider,
-    )
+
     new Login(context, signal0neProvider);
 
-
+    signal0neProvider.onDidAuthenticate(() => {
+        new Issues(context);
+    });
 }
 
 // This method is called when your extension is deactivated
