@@ -1,4 +1,5 @@
-import { API_URL } from "./extension";
+import { Signal0neProvider } from "./auth/signal0ne.provider";
+import { API_URL } from "./const";
 import * as vsc from 'vscode';
 
 const USER_API_URL = `${API_URL}/user`;
@@ -27,7 +28,7 @@ export class IssuesDataProvider implements vsc.TreeDataProvider<IssueTreeDataNod
         }
     ];
     
-    constructor() {}
+    constructor(private signal0neProvider: Signal0neProvider ) {}
 
     public getTreeItem(element: IssueTreeDataNode): vsc.TreeItem {
         if (element.type === 'environment') {
@@ -37,11 +38,6 @@ export class IssuesDataProvider implements vsc.TreeDataProvider<IssueTreeDataNod
                 description: element.description,
                 iconPath: element.iconPath,
                 collapsibleState: vsc.TreeItemCollapsibleState.Expanded,
-                command: {
-                        command: 'signal0ne.fetchIssues',
-                        title: 'Fetch Issues',
-                        arguments: [element]
-                    }
             };
         }
         else if (element.type === 'issue') {
@@ -69,21 +65,33 @@ export class IssuesDataProvider implements vsc.TreeDataProvider<IssueTreeDataNod
         }
     }
 
-    public getChildren(element?: IssueTreeDataNode): IssueTreeDataNode[] {
+    public async getChildren(element?: IssueTreeDataNode): Promise<IssueTreeDataNode[] | undefined> {
         if (!element) {
             return this.defaultRoots;
         }else {
             if (element.type === 'environment') {
-                return [
-                    {
-                        label: 'Issues',
-                        id: 'issue.1',
-                        description: 'Issues',
-                        iconPath: 'resources/issues.svg',
-                        type: 'issue',
-                        parent: element
-                    }
-                ];
+                var sessions = await this.signal0neProvider.getSessions();
+                const response = await fetch(`${USER_API_URL}/issues`, {
+                    method: 'GET',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${sessions[0].accessToken}`
+                    },
+                  });
+                var responseBody: any = await response.json();
+                if(response.ok){
+                    const issues: any = responseBody.issues;
+                    return issues.map((issue: any) => {
+                        return {
+                            label: issue.title,
+                            id: issue.id,
+                            description: issue.title,
+                            iconPath: 'resources/issues.svg',
+                            type: 'issue',
+                            parent: element
+                        }
+                    })
+                }
             }
             else {
                 return [];
@@ -102,17 +110,14 @@ export class IssuesDataProvider implements vsc.TreeDataProvider<IssueTreeDataNod
 
 export class Issues{
     private isuessView: vsc.TreeView<IssueTreeDataNode>;
+    private IssuesList: IssueTreeDataNode[] = [];
 
-    constructor(context: vsc.ExtensionContext){
-        const issuesViewDataProvider = new IssuesDataProvider();
+    constructor(context: vsc.ExtensionContext, signal0neProvider: Signal0neProvider){
+        const issuesViewDataProvider = new IssuesDataProvider(signal0neProvider);
 
         context.subscriptions.push(vsc.workspace.registerTextDocumentContentProvider('login', issuesViewDataProvider));
         
         this.isuessView = vsc.window.createTreeView('signal0neIssue', {treeDataProvider: issuesViewDataProvider, showCollapseAll: true});
-
-        // vsc.commands.registerCommand('', async (node: IssueTreeDataNode) => {
-            
-        // });
     }
 
 

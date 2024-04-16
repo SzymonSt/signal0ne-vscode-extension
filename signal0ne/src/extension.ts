@@ -9,7 +9,6 @@ import { Issues } from './issues';
 
 const TOKEN_REFRESH_INTERVAL = 1000 * 60;
 const TOKEN_REFRESH_TIMEOUT_THRESHOLD = 1000 * 60 * 3;
-export const API_URL = 'http://localhost:8080/api';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -38,7 +37,7 @@ export function activate(context: vscode.ExtensionContext) {
     new Login(context, signal0neProvider);
 
     signal0neProvider.onDidAuthenticate(() => {
-        new Issues(context);
+        new Issues(context, signal0neProvider);
     });
 }
 

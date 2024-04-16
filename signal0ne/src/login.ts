@@ -1,5 +1,5 @@
 import * as vsc from 'vscode';
-import { basename, dirname, join } from 'path';
+import { join } from 'path';
 import { Signal0neProvider } from './auth/signal0ne.provider';
 
 export interface LoginDataNode {
