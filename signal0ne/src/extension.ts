@@ -14,6 +14,7 @@ const TOKEN_REFRESH_TIMEOUT_THRESHOLD = 1000 * 60 * 3;
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
     const signal0neProvider = new Signal0neProvider(context);
+    var issueController: Issues;
     context.subscriptions.push(
         signal0neProvider,
     )
@@ -37,7 +38,29 @@ export function activate(context: vscode.ExtensionContext) {
     new Login(context, signal0neProvider);
 
     signal0neProvider.onDidAuthenticate(() => {
-        new Issues(context, signal0neProvider);
+        issueController = new Issues(context, signal0neProvider);
+    });
+
+    vscode.commands.registerCommand('signal0ne.fixCode', async () => {
+        let editor = vscode.window.activeTextEditor;
+        let selection = editor?.selection;
+        let codeSnippet = editor?.document.getText(selection);
+        let lang = editor?.document.languageId;
+ 		let codeSnippetContext = {
+ 			code: codeSnippet,
+ 			lang: lang
+ 		}
+        if (!issueController) {
+            vscode.window.showErrorMessage('Please login to Signal0ne first');
+        }
+        var newCode = await issueController.fixCode(codeSnippetContext);
+        if (newCode === "") {
+            vscode.window.showErrorMessage('Failed to fix code');
+            return;
+        }
+        editor?.edit(editBuilder => {
+            editBuilder.replace(selection ?? new  vscode.Selection(0,0,0,0) , newCode);
+        });
     });
 }
 

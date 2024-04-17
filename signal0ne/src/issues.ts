@@ -14,6 +14,8 @@ export interface IssueTreeDataNode {
     parent ?: IssueTreeDataNode;
 }
 
+var focusedIssue: IssueTreeDataNode;
+
 export class IssuesDataProvider implements vsc.TreeDataProvider<IssueTreeDataNode>, vsc.TextDocumentContentProvider {
     private _onDidChangeTreeData: vsc.EventEmitter<any> = new vsc.EventEmitter<any>();
     readonly onDidChangeTreeData: vsc.Event<any> = this._onDidChangeTreeData.event;
@@ -111,13 +113,37 @@ export class IssuesDataProvider implements vsc.TreeDataProvider<IssueTreeDataNod
 export class Issues{
     private isuessView: vsc.TreeView<IssueTreeDataNode>;
     private IssuesList: IssueTreeDataNode[] = [];
+    private signal0neProvider: Signal0neProvider;
 
     constructor(context: vsc.ExtensionContext, signal0neProvider: Signal0neProvider){
         const issuesViewDataProvider = new IssuesDataProvider(signal0neProvider);
+        this.signal0neProvider = signal0neProvider;
 
         context.subscriptions.push(vsc.workspace.registerTextDocumentContentProvider('login', issuesViewDataProvider));
         
         this.isuessView = vsc.window.createTreeView('signal0neIssue', {treeDataProvider: issuesViewDataProvider, showCollapseAll: true});
+    
+        vsc.commands.registerCommand('signal0ne.issueFocus', async (node: IssueTreeDataNode) => {
+            focusedIssue = node;
+        });
+    }
+
+    public async fixCode(codeContext: any): Promise<string>{
+        var sessions = await this.signal0neProvider.getSessions();
+        console.log(focusedIssue);
+                const response = await fetch(`${USER_API_URL}/issues/${focusedIssue.id}/add-code-as-context`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${sessions[0].accessToken}`
+                    },
+                    body: JSON.stringify(codeContext)
+                  });
+                var responseBody: any = await response.json();
+                if(response.ok){
+                    return responseBody.newCode;
+                }
+        return "";
     }
 
 
