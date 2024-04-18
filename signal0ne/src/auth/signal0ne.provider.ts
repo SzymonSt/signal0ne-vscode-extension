@@ -4,7 +4,7 @@ import * as uuid from 'uuid';
 import { API_URL } from '../const';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 
-const AUTH_URL = 'http://localhost:37001';
+const AUTH_URL = 'http://localhost:37003';
 const AUTH_API_URL = `${API_URL}/auth`;
 const SESSION_SECRET_KEY = 'signal0ne.sessions';
 const REFRESH_TOKEN_KEY = 'signal0ne.refresh_token';
@@ -104,7 +104,6 @@ export class Signal0neProvider implements vsc.AuthenticationProvider, vsc.Dispos
             }
             await this.context.secrets.store(SESSION_SECRET_KEY, JSON.stringify([newSession]));
             await this.context.secrets.store(REFRESH_TOKEN_KEY, tokenPair.refreshToken);
-            console.log('Session refreshed', newSession.accessToken);
             this._sessionChangeEmitter.fire({added: [newSession], removed: [], changed: []});
             return newSession;
           } else {

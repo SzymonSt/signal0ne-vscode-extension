@@ -130,8 +130,7 @@ export class Issues{
 
     public async fixCode(codeContext: any): Promise<string>{
         var sessions = await this.signal0neProvider.getSessions();
-        console.log(focusedIssue);
-                const response = await fetch(`${USER_API_URL}/issues/${focusedIssue.id}/add-code-as-context`, {
+        const response = await fetch(`${USER_API_URL}/issues/${focusedIssue.id}/add-code-as-context`, {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',
@@ -139,10 +138,11 @@ export class Issues{
                     },
                     body: JSON.stringify(codeContext)
                   });
-                var responseBody: any = await response.json();
-                if(response.ok){
-                    return responseBody.newCode;
-                }
+        var responseBody: any = await response.json();
+        console.log("RESPONSE:",response.status);
+        if(response.ok){
+            return responseBody.newCode;
+        }
         return "";
     }
 
