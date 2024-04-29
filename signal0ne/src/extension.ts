@@ -5,15 +5,20 @@ import axios from 'axios';
 import { Login } from './login';
 import { Signal0neProvider } from './auth/signal0ne.provider';
 import { jwtDecode } from "jwt-decode";
+import { Issues } from './issues';
 
 const TOKEN_REFRESH_INTERVAL = 1000 * 60;
+const ISSUES_LIST_REFRESH_INTERVAL = 1000 * 15;
 const TOKEN_REFRESH_TIMEOUT_THRESHOLD = 1000 * 60 * 3;
-export const API_URL = 'http://localhost:8080/api';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
     const signal0neProvider = new Signal0neProvider(context);
+    var issueController: Issues;
+    context.subscriptions.push(
+        signal0neProvider,
+    )
 
     setInterval(async () => {
         const sessions = await signal0neProvider.getSessions();
@@ -30,12 +35,37 @@ export function activate(context: vscode.ExtensionContext) {
         }           
     }, TOKEN_REFRESH_INTERVAL)
 
-    context.subscriptions.push(
-        signal0neProvider,
-    )
+
     new Login(context, signal0neProvider);
 
+    signal0neProvider.onDidAuthenticate(() => {
+        issueController = new Issues(context, signal0neProvider);
+        setInterval(async () => {
+            issueController?.IssuesViewDataProvider.refresh();
+        }, ISSUES_LIST_REFRESH_INTERVAL);
+    });
 
+    vscode.commands.registerCommand('signal0ne.fixCode', async () => {
+        let editor = vscode.window.activeTextEditor;
+        let selection = editor?.selection;
+        let codeSnippet = editor?.document.getText(selection);
+        let lang = editor?.document.languageId;
+ 		let codeSnippetContext = {
+ 			code: codeSnippet,
+ 			lang: lang
+ 		}
+        if (!issueController) {
+            vscode.window.showErrorMessage('Please login to Signal0ne first');
+        }
+        var newCode = await issueController.fixCode(codeSnippetContext);
+        if (newCode === "") {
+            vscode.window.showErrorMessage('Failed to fix code');
+            return;
+        }
+        editor?.edit(editBuilder => {
+            editBuilder.replace(selection ?? new  vscode.Selection(0,0,0,0) , newCode);
+        });
+    });
 }
 
 // This method is called when your extension is deactivated

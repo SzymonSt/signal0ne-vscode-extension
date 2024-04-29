@@ -1,17 +1,30 @@
 import * as vsc from 'vscode';
 import {getPort} from 'get-port-please';
 import * as uuid from 'uuid';
-import { API_URL } from '../extension';
+import { API_URL } from '../const';
+import { jwtDecode, JwtPayload } from 'jwt-decode';
+import { exec } from 'child_process';
 
-const AUTH_URL = 'http://localhost:37001';
+const AUTH_URL = 'http://localhost:37003';
 const AUTH_API_URL = `${API_URL}/auth`;
 const SESSION_SECRET_KEY = 'signal0ne.sessions';
 const REFRESH_TOKEN_KEY = 'signal0ne.refresh_token';
+
+interface Signal0neJwtPayload extends JwtPayload {
+  exp: number;
+  id: string;
+  userName: string;
+}
 
 export class Signal0neProvider implements vsc.AuthenticationProvider, vsc.Disposable{
 
     private _sessionChangeEmitter = new vsc.EventEmitter<vsc.AuthenticationProviderAuthenticationSessionsChangeEvent>();
     private _disposable: vsc.Disposable;
+
+    private _onDidAuthenticate = new vsc.EventEmitter<void>();
+    readonly onDidAuthenticate: vsc.Event<void> = this._onDidAuthenticate.event;
+
+    private TokenPair: any;
 
     constructor(private context: vsc.ExtensionContext) {
       this._disposable = vsc.Disposable.from(
@@ -23,22 +36,34 @@ export class Signal0neProvider implements vsc.AuthenticationProvider, vsc.Dispos
       return this._sessionChangeEmitter.event;
     }
 
-    public async createSession(scopes: readonly string[]): Promise<vsc.AuthenticationSession> {
+    public async loginInitialSession(): Promise<void> {
       try{
         const port = await getPort();
         const uri = vsc.Uri.parse(`${AUTH_URL}/login?callbackUrl=http://localhost:${port}`);
         vsc.env.openExternal(uri);
-        const tokenPair = await this.login(port);
+        this.TokenPair = await this.login(port);
+        await this.createSession([]);
+      }catch(err){
+        vsc.window.showErrorMessage(`Sign in failed: ${err}`);
+        throw err;
+      }
+
+    }
+
+    public async createSession(scopes: readonly string[]): Promise<vsc.AuthenticationSession> {
+      try{
+        var decodedToken = jwtDecode<Signal0neJwtPayload>(this.TokenPair.accessToken);
         const session: vsc.AuthenticationSession = {
             id: uuid.v4(),
-            accessToken: tokenPair.accessToken,
+            accessToken: this.TokenPair.accessToken,
             scopes: scopes,
             //To be parametrized with user details
-            account: {label: 'Signal0ne', id: 'signal0ne'},
+            account: {label: decodedToken.userName, id: decodedToken.id},
         }
         await this.context.secrets.store(SESSION_SECRET_KEY, JSON.stringify([session]));
-        await this.context.secrets.store(REFRESH_TOKEN_KEY, tokenPair.refreshToken);
+        await this.context.secrets.store(REFRESH_TOKEN_KEY, this.TokenPair.refreshToken);
         this._sessionChangeEmitter.fire({added: [session], removed: [], changed: []});
+        this._onDidAuthenticate.fire();
         console.log('Session created', session.accessToken);
         return session;
       }catch(err){
@@ -69,6 +94,7 @@ export class Signal0neProvider implements vsc.AuthenticationProvider, vsc.Dispos
 
     public async refreshSession(session: vsc.AuthenticationSession, scopes: readonly string[]): Promise<vsc.AuthenticationSession> {
         const refreshToken = await this.context.secrets.get(REFRESH_TOKEN_KEY);
+        console.log('Refreshing session...');
         if(refreshToken){
           const response = await fetch(`${AUTH_API_URL}/token/refresh`, {
             method: 'POST',
@@ -80,18 +106,9 @@ export class Signal0neProvider implements vsc.AuthenticationProvider, vsc.Dispos
             })
           });
           if(response.ok){
-            const tokenPair: any = await response.json();
-            this.removeSession(session.id);
-            const newSession: vsc.AuthenticationSession = {
-              id: uuid.v4(),
-              accessToken: tokenPair.accessToken,
-              scopes: scopes,
-              account: {label: 'Signal0ne', id: 'signal0ne'}
-            }
-            await this.context.secrets.store(SESSION_SECRET_KEY, JSON.stringify([newSession]));
-            await this.context.secrets.store(REFRESH_TOKEN_KEY, tokenPair.refreshToken);
-            this._sessionChangeEmitter.fire({added: [newSession], removed: [], changed: []});
-            return newSession;
+            this.TokenPair = await response.json();
+            await this.removeSession(session.id);
+            return await this.createSession(scopes);
           } else {
             throw new Error('Failed to refresh session');
           }

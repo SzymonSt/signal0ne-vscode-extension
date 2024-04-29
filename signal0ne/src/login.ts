@@ -1,5 +1,5 @@
 import * as vsc from 'vscode';
-import { basename, dirname, join } from 'path';
+import { join } from 'path';
 import { Signal0neProvider } from './auth/signal0ne.provider';
 
 export interface LoginDataNode {
@@ -60,7 +60,7 @@ export class Login{
         this.loginView = vsc.window.createTreeView('signal0ne', {treeDataProvider: loginDataProvider, showCollapseAll: true});
 
         vsc.commands.registerCommand('signal0ne.login', async (node: LoginDataNode) => {
-            signal0neProvider.createSession([]);
+            signal0neProvider.loginInitialSession();
         });
     }
 

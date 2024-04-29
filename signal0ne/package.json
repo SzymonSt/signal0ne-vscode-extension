@@ -16,6 +16,14 @@
       {
         "command": "signal0ne.login",
         "title": "Add code as context"
+      },
+      {
+        "command": "signal0ne.issueFocus",
+        "title": "Focus issue"
+      },
+      {
+        "command": "signal0ne.fixCode",
+        "title": "Fix code"
       }
     ],
     "viewsContainers": {
@@ -34,6 +42,27 @@
           "name": "Signal0ne",
           "type": "tree",
           "icon": "resources/signal_img_logo.svg"
+        },
+        {
+          "id": "signal0neIssue",
+          "name": "Issues",
+          "type": "tree",
+          "icon": "resources/signal_img_logo.svg"
+        }
+      ]
+    },
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "signal0ne.issueFocus",
+          "group": "inline",
+          "when": "view == signal0neIssue"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "signal0ne.fixCode",
+          "group": "inline"
         }
       ]
     },
