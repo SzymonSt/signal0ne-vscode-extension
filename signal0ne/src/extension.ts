@@ -8,6 +8,7 @@ import { jwtDecode } from "jwt-decode";
 import { Issues } from './issues';
 
 const TOKEN_REFRESH_INTERVAL = 1000 * 60;
+const ISSUES_LIST_REFRESH_INTERVAL = 1000 * 15;
 const TOKEN_REFRESH_TIMEOUT_THRESHOLD = 1000 * 60 * 3;
 
 // This method is called when your extension is activated
@@ -39,6 +40,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     signal0neProvider.onDidAuthenticate(() => {
         issueController = new Issues(context, signal0neProvider);
+        setInterval(async () => {
+            issueController?.IssuesViewDataProvider.refresh();
+        }, ISSUES_LIST_REFRESH_INTERVAL);
     });
 
     vscode.commands.registerCommand('signal0ne.fixCode', async () => {

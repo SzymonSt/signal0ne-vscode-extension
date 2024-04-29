@@ -60,7 +60,7 @@ export class Login{
         this.loginView = vsc.window.createTreeView('signal0ne', {treeDataProvider: loginDataProvider, showCollapseAll: true});
 
         vsc.commands.registerCommand('signal0ne.login', async (node: LoginDataNode) => {
-            signal0neProvider.createSession([]);
+            signal0neProvider.loginInitialSession();
         });
     }
 

@@ -32,6 +32,10 @@ export class IssuesDataProvider implements vsc.TreeDataProvider<IssueTreeDataNod
     
     constructor(private signal0neProvider: Signal0neProvider ) {}
 
+    public refresh(): void {
+        this._onDidChangeTreeData.fire(undefined);
+    }
+
     public getTreeItem(element: IssueTreeDataNode): vsc.TreeItem {
         if (element.type === 'environment') {
             return {
@@ -73,6 +77,7 @@ export class IssuesDataProvider implements vsc.TreeDataProvider<IssueTreeDataNod
         }else {
             if (element.type === 'environment') {
                 var sessions = await this.signal0neProvider.getSessions();
+                console.log("SESSIONS:",sessions);
                 const response = await fetch(`${USER_API_URL}/issues`, {
                     method: 'GET',
                     headers: {
@@ -81,6 +86,7 @@ export class IssuesDataProvider implements vsc.TreeDataProvider<IssueTreeDataNod
                     },
                   });
                 var responseBody: any = await response.json();
+                console.log("FETCH ISSUES RESPONSE:",response.status);
                 if(response.ok){
                     const issues: any = responseBody.issues;
                     return issues.map((issue: any) => {
@@ -114,14 +120,15 @@ export class Issues{
     private isuessView: vsc.TreeView<IssueTreeDataNode>;
     private IssuesList: IssueTreeDataNode[] = [];
     private signal0neProvider: Signal0neProvider;
+    public IssuesViewDataProvider: IssuesDataProvider;
 
     constructor(context: vsc.ExtensionContext, signal0neProvider: Signal0neProvider){
-        const issuesViewDataProvider = new IssuesDataProvider(signal0neProvider);
+        this.IssuesViewDataProvider = new IssuesDataProvider(signal0neProvider);
         this.signal0neProvider = signal0neProvider;
 
-        context.subscriptions.push(vsc.workspace.registerTextDocumentContentProvider('login', issuesViewDataProvider));
+        context.subscriptions.push(vsc.workspace.registerTextDocumentContentProvider('login', this.IssuesViewDataProvider));
         
-        this.isuessView = vsc.window.createTreeView('signal0neIssue', {treeDataProvider: issuesViewDataProvider, showCollapseAll: true});
+        this.isuessView = vsc.window.createTreeView('signal0neIssue', {treeDataProvider: this.IssuesViewDataProvider, showCollapseAll: true});
     
         vsc.commands.registerCommand('signal0ne.issueFocus', async (node: IssueTreeDataNode) => {
             focusedIssue = node;
