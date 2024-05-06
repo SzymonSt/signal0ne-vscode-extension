@@ -23,6 +23,8 @@ export class Signal0neProvider implements vsc.AuthenticationProvider, vsc.Dispos
 
     private _onDidAuthenticate = new vsc.EventEmitter<void>();
     readonly onDidAuthenticate: vsc.Event<void> = this._onDidAuthenticate.event;
+    private _onDidLogout = new vsc.EventEmitter<void>();
+    readonly onDidLogout: vsc.Event<void> = this._onDidLogout.event;
 
     private TokenPair: any;
 
@@ -48,6 +50,14 @@ export class Signal0neProvider implements vsc.AuthenticationProvider, vsc.Dispos
         throw err;
       }
 
+    }
+
+    public async logout(): Promise<void> {
+      const sessions = await this.getSessions();
+      if (sessions[0]) {
+        this.removeSession(sessions[0].id);
+        this._onDidLogout.fire();
+      }
     }
 
     public async createSession(scopes: readonly string[]): Promise<vsc.AuthenticationSession> {

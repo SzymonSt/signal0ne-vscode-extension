@@ -75,8 +75,8 @@ export class IssuesDataProvider implements vsc.TreeDataProvider<IssueTreeDataNod
         if (!element) {
             return this.defaultRoots;
         }else {
-            if (element.type === 'environment') {
-                var sessions = await this.signal0neProvider.getSessions();
+            var sessions = await this.signal0neProvider.getSessions();
+            if (element.type === 'environment' && sessions.length) {
                 console.log("SESSIONS:",sessions);
                 const response = await fetch(`${USER_API_URL}/issues`, {
                     method: 'GET',
@@ -141,7 +141,7 @@ export class Issues{
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${sessions[0].accessToken}`
+                      'Authorization': `Bearer ${sessions[0]?.accessToken}`
                     },
                     body: JSON.stringify(codeContext)
                   });

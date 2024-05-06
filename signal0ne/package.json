@@ -24,6 +24,10 @@
       {
         "command": "signal0ne.fixCode",
         "title": "Fix code"
+      },
+      {
+        "command": "signal0ne.logout",
+        "title": "Add code as context"
       }
     ],
     "viewsContainers": {

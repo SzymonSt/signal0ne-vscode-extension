@@ -17,6 +17,7 @@ export class LoginDataProvider implements vsc.TreeDataProvider<LoginDataNode>, v
     constructor() {}
 
     public getTreeItem(element: LoginDataNode): vsc.TreeItem {
+        
         return {
             label: element.label,
             id: element.id,
@@ -32,6 +33,7 @@ export class LoginDataProvider implements vsc.TreeDataProvider<LoginDataNode>, v
     }
 
     public getChildren(element?: LoginDataNode): LoginDataNode[] {
+        console.log('TEST', element)
         if (!element) {
             return [
                 {label: 'Login To Signal0ne', id: 'login', description: 'Login to Signal0ne', iconPath: join(__dirname, '..', 'resources', 'signal_img_logo.svg')}
@@ -39,14 +41,14 @@ export class LoginDataProvider implements vsc.TreeDataProvider<LoginDataNode>, v
         }
         return [];
     }
-    
+     
 	public getParent(element: LoginDataNode): LoginDataNode | undefined {
 		return element.parent;
 	}
 
     public provideTextDocumentContent(uri: vsc.Uri): string {
         return `HEllo World!`
-    }
+    } 
 }
 
 export class Login{
