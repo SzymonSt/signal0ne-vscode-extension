@@ -60,7 +60,7 @@
         {
           "command": "signal0ne.issueFocus",
           "group": "inline",
-          "when": "view == signal0neIssue"
+          "when": "view == signal0neIssue && viewItem == 'issue'"
         }
       ],
       "editor/context": [

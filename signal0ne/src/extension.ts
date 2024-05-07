@@ -41,7 +41,6 @@ export function activate(context: vscode.ExtensionContext) {
     new Login(context, signal0neProvider);
     
     signal0neProvider.onDidAuthenticate(() => {
-        console.log('TEST ON DID AUTHENTICATE', context )
         new Logout(context, signal0neProvider);
         if (!issueController) {
             issueController = new Issues(context, signal0neProvider);
@@ -52,7 +51,6 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     signal0neProvider.onDidLogout(() => {
-        console.log('ON DID LOGOUT')
         new Login(context, signal0neProvider);
         issueController = null as any;
         clearInterval(refreshIssuesInterval);
