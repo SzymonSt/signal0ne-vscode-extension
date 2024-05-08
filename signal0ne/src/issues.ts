@@ -135,10 +135,6 @@ export class Issues{
         vsc.commands.registerCommand('signal0ne.issueFocus', async (node: IssueTreeDataNode) => {
             focusedIssue = node;
             const focusedIssueDetails = await this.getIssueDetails(focusedIssue);
-            //get paths from the relevant log tail
-            //->If not empty, fetch excluded paths and filter excluded paths
-            //->Search for last path from the stack trace in the project
-            //->->If file found, Open the file
         });
     }
 
@@ -175,34 +171,5 @@ export class Issues{
         }
         return {} as Issue;
     }
-
-    private getPathsFromLogTail(logTail: string[]): string[]{
-        const pathRegex = /.*[\/\\].*$/;
-        let paths: string[] = [];
-        for (var i = 0; i < logTail.length; i++){
-            if(pathRegex.test(logTail[i])){
-                paths.push(...logTail[i].match(pathRegex) as string[]);
-            }
-        }
-        return paths;
-    }
-
-    private filterExcludedPaths(): string[] {
-        return [];
-    }
-
-    private proceedAdvancedFiltering(advancedFilters: AdvancedFilter[]): string{
-        switch(advancedFilters[0].name){
-            case 'keyPhrases':
-                return '';        
-        }
-        return "";
-    }
-
-    private scrapeFilePaths(): string[]{
-        return [];
-    }
-    
-
 
 }
