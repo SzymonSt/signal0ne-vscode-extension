@@ -6,6 +6,7 @@ import { Login } from './login';
 import { Signal0neProvider } from './auth/signal0ne.provider';
 import { jwtDecode } from "jwt-decode";
 import { Issues } from './issues';
+import { Logout } from './logout';
 
 const TOKEN_REFRESH_INTERVAL = 1000 * 60;
 const ISSUES_LIST_REFRESH_INTERVAL = 1000 * 15;
@@ -15,7 +16,8 @@ const TOKEN_REFRESH_TIMEOUT_THRESHOLD = 1000 * 60 * 3;
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
     const signal0neProvider = new Signal0neProvider(context);
-    var issueController: Issues;
+    var issueController!: Issues;
+    var refreshIssuesInterval: NodeJS.Timeout;
     context.subscriptions.push(
         signal0neProvider,
     )
@@ -37,14 +39,23 @@ export function activate(context: vscode.ExtensionContext) {
 
 
     new Login(context, signal0neProvider);
-
+    
     signal0neProvider.onDidAuthenticate(() => {
-        issueController = new Issues(context, signal0neProvider);
-        setInterval(async () => {
-            issueController?.IssuesViewDataProvider.refresh();
-        }, ISSUES_LIST_REFRESH_INTERVAL);
+        new Logout(context, signal0neProvider);
+        if (!issueController) {
+            issueController = new Issues(context, signal0neProvider);
+            refreshIssuesInterval = setInterval(async () => {
+                issueController?.IssuesViewDataProvider.refresh();
+            }, ISSUES_LIST_REFRESH_INTERVAL);
+        }
     });
 
+    signal0neProvider.onDidLogout(() => {
+        new Login(context, signal0neProvider);
+        issueController = null as any;
+        clearInterval(refreshIssuesInterval);
+    })
+ 
     vscode.commands.registerCommand('signal0ne.fixCode', async () => {
         let editor = vscode.window.activeTextEditor;
         let selection = editor?.selection;

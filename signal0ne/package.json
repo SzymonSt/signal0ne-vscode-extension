@@ -24,6 +24,10 @@
       {
         "command": "signal0ne.fixCode",
         "title": "Fix code"
+      },
+      {
+        "command": "signal0ne.logout",
+        "title": "Add code as context"
       }
     ],
     "viewsContainers": {
@@ -56,7 +60,7 @@
         {
           "command": "signal0ne.issueFocus",
           "group": "inline",
-          "when": "view == signal0neIssue"
+          "when": "view == signal0neIssue && viewItem == 'issue'"
         }
       ],
       "editor/context": [

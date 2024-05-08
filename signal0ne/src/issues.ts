@@ -11,8 +11,9 @@ export interface IssueTreeDataNode {
     id: string;
     description: string;
     iconPath: string;
-    type: string; // allowed : ['environment', 'issue']
+    type: 'environment' | 'issue' | 'empty';
     parent ?: IssueTreeDataNode;
+    children?: any;
 }
 
 var focusedIssue: IssueTreeDataNode;
@@ -31,7 +32,7 @@ export class IssuesDataProvider implements vsc.TreeDataProvider<IssueTreeDataNod
         }
     ];
     
-    constructor(private signal0neProvider: Signal0neProvider ) {}
+    constructor(private signal0neProvider: Signal0neProvider) {}
 
     public refresh(): void {
         this._onDidChangeTreeData.fire(undefined);
@@ -46,6 +47,14 @@ export class IssuesDataProvider implements vsc.TreeDataProvider<IssueTreeDataNod
                 iconPath: element.iconPath,
                 collapsibleState: vsc.TreeItemCollapsibleState.Expanded,
             };
+        } else if (element.type === 'empty') {
+            return {
+                label: element.label,
+                id: element.id,
+                description: element.description,
+                iconPath: element.iconPath,
+                collapsibleState: vsc.TreeItemCollapsibleState.None,
+            };
         }
         else if (element.type === 'issue') {
             return {
@@ -54,14 +63,14 @@ export class IssuesDataProvider implements vsc.TreeDataProvider<IssueTreeDataNod
                 description: element.description,
                 iconPath: element.iconPath,
                 collapsibleState: vsc.TreeItemCollapsibleState.None,
+                contextValue: 'issue',
                 command: {
                         command: 'signal0ne.getIssueDetails',
                         title: 'Get Issue Details',
                         arguments: [element]
                     }
             };
-        }
-        else{
+        } else {
             return {
                 label: element.label,
                 id: element.id,
@@ -76,8 +85,8 @@ export class IssuesDataProvider implements vsc.TreeDataProvider<IssueTreeDataNod
         if (!element) {
             return this.defaultRoots;
         }else {
-            if (element.type === 'environment') {
-                var sessions = await this.signal0neProvider.getSessions();
+            var sessions = await this.signal0neProvider.getSessions();
+            if (element.type === 'environment' && sessions.length) {
                 console.log("SESSIONS:",sessions);
                 const response = await fetch(`${USER_API_URL}/issues`, {
                     method: 'GET',
@@ -90,16 +99,30 @@ export class IssuesDataProvider implements vsc.TreeDataProvider<IssueTreeDataNod
                 console.log("FETCH ISSUES RESPONSE:",response.status);
                 if(response.ok){
                     const issues: any = responseBody.issues;
-                    return issues.map((issue: any) => {
-                        return {
-                            label: issue.title,
-                            id: issue.id,
-                            description: issue.title,
-                            iconPath: 'resources/issues.svg',
-                            type: 'issue',
+                    if (issues.length) {
+                        return issues.map((issue: any) => {
+                            return {
+                                label: issue.title,
+                                id: issue.id,
+                                description: issue.title,
+                                iconPath: 'resources/issues.svg',
+                                type: 'issue',
+                                parent: element
+                            }
+                        })
+                    } else {
+                    return [
+                        {
+                            label: 'No issues available',
+                            id: 'issues-list-empty',
+                            description: '',
+                            iconPath: '',
+                            type: 'empty',
                             parent: element
                         }
-                    })
+                    ]
+                    }
+
                 }
             }
             else {
@@ -126,15 +149,18 @@ export class Issues{
     constructor(context: vsc.ExtensionContext, signal0neProvider: Signal0neProvider){
         this.IssuesViewDataProvider = new IssuesDataProvider(signal0neProvider);
         this.signal0neProvider = signal0neProvider;
-
         context.subscriptions.push(vsc.workspace.registerTextDocumentContentProvider('login', this.IssuesViewDataProvider));
         
         this.isuessView = vsc.window.createTreeView('signal0neIssue', {treeDataProvider: this.IssuesViewDataProvider, showCollapseAll: true});
     
         vsc.commands.registerCommand('signal0ne.issueFocus', async (node: IssueTreeDataNode) => {
-            focusedIssue = node;
-            const focusedIssueDetails = await this.getIssueDetails(focusedIssue);
+            if (node.type === 'issue') {
+                focusedIssue = node;
+                const focusedIssueDetails = await this.getIssueDetails(focusedIssue);
+            }
+            console.log('FOCUSED ISSUE', focusedIssue)
         });
+
     }
 
     public async fixCode(codeContext: any): Promise<string>{
@@ -143,7 +169,7 @@ export class Issues{
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${sessions[0].accessToken}`
+                      'Authorization': `Bearer ${sessions[0]?.accessToken}`
                     },
                     body: JSON.stringify(codeContext)
                   });
