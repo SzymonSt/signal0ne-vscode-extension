@@ -1,6 +1,7 @@
 import { Signal0neProvider } from "./auth/signal0ne.provider";
 import { API_URL } from "./const";
 import * as vsc from 'vscode';
+import { Issue } from "./models/issue";
 
 const USER_API_URL = `${API_URL}/user`;
 const INTEGRATION_API_URL = `${API_URL}/agent`;
@@ -155,6 +156,7 @@ export class Issues{
         vsc.commands.registerCommand('signal0ne.issueFocus', async (node: IssueTreeDataNode) => {
             if (node.type === 'issue') {
                 focusedIssue = node;
+                const focusedIssueDetails = await this.getIssueDetails(focusedIssue);
             }
             console.log('FOCUSED ISSUE', focusedIssue)
         });
@@ -179,5 +181,20 @@ export class Issues{
         return "";
     }
 
+    public async getIssueDetails(issue: IssueTreeDataNode): Promise<Issue>{
+        var sessions = await this.signal0neProvider.getSessions();
+        const response = await fetch(`${USER_API_URL}/issues/${issue.id}`, {
+                    method: 'GET',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${sessions[0].accessToken}`
+                    },
+                  });
+        var responseBody: any = await response.json();
+        if(response.ok){
+            return responseBody as Issue;
+        }
+        return {} as Issue;
+    }
 
 }
