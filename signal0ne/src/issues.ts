@@ -2,7 +2,6 @@ import { Signal0neProvider } from "./auth/signal0ne.provider";
 import { API_URL } from "./const";
 import * as vsc from 'vscode';
 import { Issue } from "./models/issue";
-import { AdvancedFilter } from "./models/filtering_config";
 
 const USER_API_URL = `${API_URL}/user`;
 const INTEGRATION_API_URL = `${API_URL}/agent`;
