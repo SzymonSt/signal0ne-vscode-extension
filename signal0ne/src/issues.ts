@@ -4,7 +4,7 @@ import * as vsc from 'vscode';
 import { Issue } from "./models/issue";
 
 const USER_API_URL = `${API_URL}/user`;
-const INTEGRATION_API_URL = `${API_URL}/agent`;
+const INTEGRATION_API_URL = `${API_URL}/integration`;
 
 export interface IssueTreeDataNode {
     label: string;
@@ -165,7 +165,7 @@ export class Issues{
 
     public async fixCode(codeContext: any): Promise<string>{
         var sessions = await this.signal0neProvider.getSessions();
-        const response = await fetch(`${USER_API_URL}/issues/${focusedIssue.id}/add-code-as-context`, {
+        const response = await fetch(`${INTEGRATION_API_URL}/issues/${focusedIssue.id}/add-code-as-context`, {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',
