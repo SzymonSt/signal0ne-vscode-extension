@@ -1,5 +1,6 @@
 import { Signal0neProvider } from "./auth/signal0ne.provider";
 import { API_URL } from "./const";
+import { createIssueDetailsView } from "./issue-details";
 import * as vsc from 'vscode';
 
 const USER_API_URL = `${API_URL}/user`;
@@ -155,6 +156,7 @@ export class Issues{
         vsc.commands.registerCommand('signal0ne.issueFocus', async (node: IssueTreeDataNode) => {
             if (node.type === 'issue') {
                 focusedIssue = node;
+                createIssueDetailsView(context, focusedIssue)
             }
             console.log('FOCUSED ISSUE', focusedIssue)
         });

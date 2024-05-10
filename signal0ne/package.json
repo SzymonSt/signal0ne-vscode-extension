@@ -28,6 +28,10 @@
       {
         "command": "signal0ne.logout",
         "title": "Add code as context"
+      },
+      {
+        "command": "signal0ne.issueDetails",
+        "title": "Issue details"
       }
     ],
     "viewsContainers": {

@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         signal0neProvider,
     )
-
+    
     setInterval(async () => {
         const sessions = await signal0neProvider.getSessions();
         if (sessions.length > 0) {
