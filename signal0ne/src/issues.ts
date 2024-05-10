@@ -2,9 +2,10 @@ import { Signal0neProvider } from "./auth/signal0ne.provider";
 import { API_URL } from "./const";
 import { createIssueDetailsView } from "./issue-details";
 import * as vsc from 'vscode';
+import { Issue } from "./models/issue";
 
 const USER_API_URL = `${API_URL}/user`;
-const INTEGRATION_API_URL = `${API_URL}/agent`;
+const INTEGRATION_API_URL = `${API_URL}/integration`;
 
 export interface IssueTreeDataNode {
     label: string;
@@ -157,6 +158,7 @@ export class Issues{
             if (node.type === 'issue') {
                 focusedIssue = node;
                 createIssueDetailsView(context, focusedIssue)
+                const focusedIssueDetails = await this.getIssueDetails(focusedIssue);
             }
             console.log('FOCUSED ISSUE', focusedIssue)
         });
@@ -165,7 +167,7 @@ export class Issues{
 
     public async fixCode(codeContext: any): Promise<string>{
         var sessions = await this.signal0neProvider.getSessions();
-        const response = await fetch(`${USER_API_URL}/issues/${focusedIssue.id}/add-code-as-context`, {
+        const response = await fetch(`${INTEGRATION_API_URL}/issues/${focusedIssue.id}/add-code-as-context`, {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',
@@ -181,5 +183,20 @@ export class Issues{
         return "";
     }
 
+    public async getIssueDetails(issue: IssueTreeDataNode): Promise<Issue>{
+        var sessions = await this.signal0neProvider.getSessions();
+        const response = await fetch(`${USER_API_URL}/issues/${issue.id}`, {
+                    method: 'GET',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${sessions[0].accessToken}`
+                    },
+                  });
+        var responseBody: any = await response.json();
+        if(response.ok){
+            return responseBody as Issue;
+        }
+        return {} as Issue;
+    }
 
 }
