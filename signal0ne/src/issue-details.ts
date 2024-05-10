@@ -35,7 +35,7 @@ function getWebviewContent(issue: any) {
   <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Cat Coding</title>
+      <title>Issue details</title>
       <style>
         .text-primary {
             color: #3f51b5;
