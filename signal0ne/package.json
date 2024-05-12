@@ -7,6 +7,7 @@
     "vscode": "^1.87.0"
   },
   "categories": [
+    "AI",
     "Other"
   ],
   "activationEvents": [],
@@ -14,59 +15,59 @@
   "contributes": {
     "commands": [
       {
-        "command": "signal0ne.login",
-        "title": "Add code as context"
+        "command": "signal0ne.fixCode",
+        "title": "Fix code"
       },
       {
         "command": "signal0ne.issueFocus",
         "title": "Focus issue"
       },
       {
-        "command": "signal0ne.fixCode",
-        "title": "Fix code"
+        "command": "signal0ne.login",
+        "title": "Login to Signal0ne"
       },
       {
         "command": "signal0ne.logout",
-        "title": "Add code as context"
+        "title": "Logout from Signal0ne"
       }
     ],
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "signal0ne",
-          "title": "Signal0ne",
-          "icon": "resources/signal_img_logo.svg"
-        }
-      ]
-    },
-    "views": {
-      "signal0ne": [
-        {
-          "id": "signal0ne",
-          "name": "Signal0ne",
-          "type": "tree",
-          "icon": "resources/signal_img_logo.svg"
-        },
-        {
-          "id": "signal0neIssue",
-          "name": "Issues",
-          "type": "tree",
-          "icon": "resources/signal_img_logo.svg"
-        }
-      ]
-    },
     "menus": {
+      "editor/context": [
+        {
+          "command": "signal0ne.fixCode",
+          "group": "inline"
+        }
+      ],
       "view/item/context": [
         {
           "command": "signal0ne.issueFocus",
           "group": "inline",
           "when": "view == signal0neIssue && viewItem == 'issue'"
         }
-      ],
-      "editor/context": [
+      ]
+    },
+    "views": {
+      "signal0ne": [
         {
-          "command": "signal0ne.fixCode",
-          "group": "inline"
+          "icon": "resources/signal_img_logo.svg",
+          "id": "signal0ne",
+          "name": "Signal0ne",
+          "type": "tree"
+        },
+        {
+          "icon": "resources/signal_img_logo.svg",
+          "id": "signal0neIssue",
+          "name": "Issues",
+          "type": "tree"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "icon": "resources/signal_img_logo.svg",
+          "id": "signal0ne",
+          "title": "Signal0ne"
         }
       ]
     },
@@ -78,14 +79,14 @@
     ]
   },
   "scripts": {
-    "start:ui": "cd ui && npm run start",
     "build:ui": "cd ui && npm run build",
-    "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "vscode-test"
+    "pretest": "npm run compile && npm run lint",
+    "start:ui": "cd ui && npm run start",
+    "test": "vscode-test",
+    "vscode:prepublish": "npm run compile",
+    "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.6",
