@@ -19,6 +19,7 @@ const DEFAULT_ROOTS_ISSUES: IssueTreeDataNode[] = [
     type: 'environment'
   }
 ];
+const INTEGRATION_API_URL = `${API_URL}/integration`;
 const USER_API_URL = `${API_URL}/user`;
 let focusedIssue: IssueTreeDataNode;
 
@@ -172,7 +173,7 @@ export class Issues {
     };
 
     const res = await fetch(
-      `${USER_API_URL}/issues/${focusedIssue.id}/add-code-as-context`,
+      `${INTEGRATION_API_URL}/issues/${focusedIssue.id}/add-code-as-context`,
       options
     );
     const resBody = (await res.json()) as CodeAsContextResponseBody;
