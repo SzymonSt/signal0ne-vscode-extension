@@ -41,7 +41,6 @@ export function activate(context: vscode.ExtensionContext) {
 
     if (!issueController) {
       issueController = new Issues(context, signal0neProvider);
-
       refreshIssuesInterval = setInterval(async () => {
         issueController?.issuesViewDataProvider.refresh();
       }, ISSUES_LIST_REFRESH_INTERVAL);
