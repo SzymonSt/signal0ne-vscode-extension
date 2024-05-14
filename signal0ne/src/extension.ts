@@ -74,20 +74,20 @@ export function activate(context: vscode.ExtensionContext) {
       return;
     }
 
-    const newCode = await issueController.fixCode(codeSnippetContext);
+    const newCodeObject = await issueController.fixCode(codeSnippetContext);
 
-    if (newCode === '') {
+    if (newCodeObject.newCode === '') {
       vscode.window.showErrorMessage(
         'Failed to fix the selected code. Please try again with different code snippet.'
       );
       return;
     }
 
-    // createProposedCodeSolutionView(newCode);
     editor.edit((editBuilder) => {
-      editBuilder.replace(selection, newCode);
+      editBuilder.replace(selection, newCodeObject.newCode);
     })
     vscode.commands.executeCommand('workbench.files.action.compareWithSaved', document.uri);
+    createProposedCodeSolutionView(newCodeObject.explanation);
   });
 }
 

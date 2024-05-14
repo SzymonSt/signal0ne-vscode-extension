@@ -2,6 +2,7 @@ export interface CodeAsContextResponseBody {
   error?: string;
   message: string;
   newCode: string;
+  explanation?: string;
 }
 
 export interface CodeContext {

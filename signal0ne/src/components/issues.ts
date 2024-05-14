@@ -160,7 +160,7 @@ export class Issues {
     });
   }
 
-  public async fixCode(codeContext: CodeContext): Promise<string> {
+  public async fixCode(codeContext: CodeContext): Promise<CodeAsContextResponseBody> {
     const sessions = await this.signal0neProvider.getSessions();
 
     const options = {
@@ -177,10 +177,14 @@ export class Issues {
       options
     );
     const resBody = (await res.json()) as CodeAsContextResponseBody;
+    console.log('RESPONSE:', resBody);
 
-    if (res.ok) return resBody.newCode;
+    if (res.ok) return resBody;
 
-    return '';
+    return {
+      newCode: '',
+      message: resBody.error
+    } as CodeAsContextResponseBody;
   }
 
   public async getIssueDetails(issue: IssueTreeDataNode): Promise<Issue> {

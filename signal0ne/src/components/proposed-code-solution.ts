@@ -4,14 +4,12 @@ import * as vsc from 'vscode';
 let panel: any;
 let isPanelInit = false;
 
-export function createProposedCodeSolutionView(code: any): void {
-    console.log('TEST WORKS', code, panel)
-
+export function createProposedCodeSolutionView(explanation: any): void {
     if (!isPanelInit) {
 
           panel = vsc.window.createWebviewPanel(
             'signal0ne',
-            'Issue Details',
+            'Code Fix',
             vsc.ViewColumn.Beside,
             {}
           );
@@ -22,34 +20,20 @@ export function createProposedCodeSolutionView(code: any): void {
          null
         )
 
-          panel.webview.html = getWebviewContent(code);
+          panel.webview.html = getWebviewContent(explanation);
           isPanelInit = true;
     } else {
-        panel.webview.html = getWebviewContent(code);
+        panel.webview.html = getWebviewContent(explanation);
     }
 }
 
-async function copyToClipboard(text: any) {
-  await vsc.env.clipboard.writeText(text);
-}
-
-async function getWebviewContent(code: any) {
-  console.log('code', code)
+function getWebviewContent(explanation: any) {
     return `<!DOCTYPE html>
   <html lang="en">
   <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Code</title>
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-
-      <!-- and it's easy to individually load additional languages -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
-
-      <script>
-      hljs.highlightAll();
-      </script>
+      <title>Fix Explanation</title>
       <style>
         .text-primary {
             color: #3f51b5;
@@ -206,9 +190,7 @@ async function getWebviewContent(code: any) {
   </head>
   <body>
     <div class="container">
-        <div class="sources">
-          <pre><code class="language-html">${code}</code></pre>
-        </div>
+          ${explanation}
     </div>
     <div class="icons-container">
         <div class="likes-container">
@@ -236,28 +218,9 @@ async function getWebviewContent(code: any) {
                 </svg>
                 <span class="tooltip-text" id="top">Regenerate issue</span>
             </button>   
-        </span> 
-        <span class="hover-text mr-10">
-        <button class="btn btn-secondary">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" class="bi bi-flag-fill" viewBox="0 0 16 16">
-                <path d="M14.778.085A.5.5 0 0 1 15 .5V8a.5.5 0 0 1-.314.464L14.5 8l.186.464-.003.001-.006.003-.023.009a12 12 0 0 1-.397.15c-.264.095-.631.223-1.047.35-.816.252-1.879.523-2.71.523-.847 0-1.548-.28-2.158-.525l-.028-.01C7.68 8.71 7.14 8.5 6.5 8.5c-.7 0-1.638.23-2.437.477A20 20 0 0 0 3 9.342V15.5a.5.5 0 0 1-1 0V.5a.5.5 0 0 1 1 0v.282c.226-.079.496-.17.79-.26C4.606.272 5.67 0 6.5 0c.84 0 1.524.277 2.121.519l.043.018C9.286.788 9.828 1 10.5 1c.7 0 1.638-.23 2.437-.477a20 20 0 0 0 1.349-.476l.019-.007.004-.002h.001"/>
-            </svg>
-            <span class="tooltip-text" id="top">Report issue analysis</span>
-        </button>   
-        </span>         
+        </span>        
     </div>
   </div>
   </body>
   </html>`;
   }
-
-
-// <button class="btn btn-secondary reload-button" (click)="regenerateIssue.emit()" [matTooltip]="'FEATURES.ISSUES.REGENERATE_ISSUE' | translate">
-//   <i class="bi bi-arrow-clockwise"></i>
-// </button>
-// <button class="btn btn-secondary reload-button" (click)="openReportIssueAnalysisModal()" [matTooltip]="'FEATURES.ISSUES.REPORT_ISSUE_ANALYSIS' | translate">
-//   <i class="bi bi-flag-fill"></i>
-// </button>
-
-
-// 
