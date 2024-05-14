@@ -5,7 +5,7 @@ let panel: any;
 let isPanelInit = false;
 
 export function createIssueDetailsView(context: vsc.ExtensionContext, issue: any): void {
-    console.log('TEST WORKS', issue, panel)
+    console.log('TEST WORKS', issue, panel, context)
 
     if (!isPanelInit) {
 
@@ -30,6 +30,7 @@ export function createIssueDetailsView(context: vsc.ExtensionContext, issue: any
 }
 
 function getWebviewContent(issue: any) {
+  console.log('ISSUE', issue)
     return `<!DOCTYPE html>
   <html lang="en">
   <head>
@@ -193,7 +194,7 @@ function getWebviewContent(issue: any) {
   <body>
     <div class="container">
         <h2>Insights: </h2>
-        <p> The applicdsadsadsadsa dasd asd asd asdsa dsa dsa sad located in the Program.cs file within the /app directory </p>
+        <p> {The applicdsadsadsadsa dasd as}d asd asdsa dsa dsa sad located in the Program.cs file within the /app directory </p>
         <div class="sources">
         <h4 class="sources-title">Sources </h4>
         <p> The applicdsadsadsadsa dasd asd asd asdsa dsa dsa sad located in the Program.cs file within the /app directory </p>

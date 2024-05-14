@@ -4,6 +4,7 @@ import { jwtDecode } from 'jwt-decode';
 import { Login } from './components/login';
 import { Logout } from './components/logout';
 import { Signal0neProvider } from './auth/signal0ne.provider';
+import {createProposedCodeSolutionView} from './components/proposed-code-solution';
 
 const ISSUES_LIST_REFRESH_INTERVAL = 1000 * 15;
 const TOKEN_REFRESH_INTERVAL = 1000 * 60;
@@ -82,12 +83,11 @@ export function activate(context: vscode.ExtensionContext) {
       return;
     }
 
-    edit(editBuilder => {
-      editBuilder.replace(
-        selection ?? new vscode.Selection(0, 0, 0, 0),
-        newCode
-      );
-    });
+    // createProposedCodeSolutionView(newCode);
+    editor.edit((editBuilder) => {
+      editBuilder.replace(selection, newCode);
+    })
+    vscode.commands.executeCommand('workbench.files.action.compareWithSaved', document.uri);
   });
 }
 
