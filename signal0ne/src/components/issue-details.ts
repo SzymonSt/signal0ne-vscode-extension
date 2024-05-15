@@ -198,21 +198,70 @@ function getWebviewContent(issue: any, accessToken: string) {
           .like.score-selected {
             opacity: 1;
           }
+
+          .d-none {
+            display: none !important;
+          }
+
+          .d-block {
+            display: block !important;
+          }
+
+          .loader {
+            position: absolute;
+            top: calc(50% - 60px);
+            left: calc(50% - 60px);
+            border: 16px solid transparent;
+            border-top: 16px solid #3f51b5;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 1s ease-in infinite;
+            z-index: 10;
+            display: none;
+          }
+          
+          .loader-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: transparent;
+            z-index: 2;
+            opacity: .5;
+            display: none;
+          }
+          
+          @keyframes spin {
+            0% {
+              transform: rotate(0deg);
+            }
+            100% {
+              transform: rotate(360deg);
+            }
+          }
       </style>
   </head>
   <body>
+    <div id="loader" class="loader"></div>
+    <div id="loader-background" class="loader-background"></div> 
     <div class="container">
         <h2>Insights: </h2>
-        <p>${issue.logSummary}</p>
+        <p id="log-summary-container">${issue.logSummary}</p>
         <div class="sources">
           <h4 class="sources-title">Sources</h4>
-          ${generateSources(issue)}
+          <div id="sources-container">
+            ${generateSources(issue)}
+          </div>
         </div>
-        <p>
+        <p id="predicted-solutions-containers">
           ${issue.predictedSolutionsSummary}
         </p>
         <h2>Sources: </h2>
-        ${generateSourcesLinks(issue)}
+        <div id="sources-links-container">
+          ${generateSourcesLinks(issue)}
+        </div>
     </div>
     <div class="icons-container">
         <div class="likes-container">
@@ -243,23 +292,17 @@ function getWebviewContent(issue: any, accessToken: string) {
         </span>          
     </div>
   </div>
-  <h1 id="lines-of-code-counter">0</h1>
-    <script>
-    const counter = document.getElementById('lines-of-code-counter');
+  <script>
     const accessToken = "${accessToken}"
     const issueId = "${issue.id}";
     const USER_API_URL = "${USER_API_URL}";
     let isResolved = "${issue.isResolved}" === "true";
     let score = +"${issue.score}";
-    console.log('SCRIPT INIT', issueId, accessToken)
-    let count = 0;
-    setInterval(() => {
-        counter.textContent = count++;
-    }, 100);
 
     document.getElementById('resolve-button').addEventListener('click', markIssueAsResolved)
     document.getElementById('score-negative').addEventListener('click', rateIssueNegative)
     document.getElementById('score-positive').addEventListener('click', rateIssuePositive)
+    document.getElementById('regenerate-button').addEventListener('click', regenerateIssue)
 
     async function markIssueAsResolved() {
         const options = {
@@ -330,6 +373,58 @@ function getWebviewContent(issue: any, accessToken: string) {
                 document.getElementById('score-negative').classList.add('score-selected');
                 document.getElementById('score-positive').classList.remove('score-selected');
               }
+            }
+          }
+
+          async function regenerateIssue() {
+            const options = {
+              headers: {
+                'Authorization': "Bearer " + accessToken,
+                'Content-Type': 'application/json'
+              },
+              method: 'PUT'
+            };
+            toggleLoader(true);
+            const res = await fetch(USER_API_URL + "/issues/" + issueId + "/regenerate", options);
+            const body = await res.json();
+            toggleLoader(false);
+            if (res.ok) {
+              document.getElementById('log-summary-container').innerHTML = body.logSummary;
+              document.getElementById('predicted-solutions-containers').innerHTML = body.predictedSolutionsSummary;
+              document.getElementById('sources-container').innerHTML = generateSources(body);
+              document.getElementById('sources-links-container').innerHTML = generateSourcesLinks(body);
+            }
+          }
+
+          function toggleLoader(loaderState) {
+            const loader = document.getElementById('loader')
+            const loaderBackground = document.getElementById('loader-background')
+            if (loaderState) {
+              loader.classList.add('d-block');
+              loaderBackground.classList.add('d-block');
+            } else {
+              loader.classList.remove('d-block');
+              loaderBackground.classList.remove('d-block');
+            }
+          }
+
+          const generateSources = (issue) => {
+            if (issue.logs?.length) {
+              return issue.logs.map((log) => {
+                return '<p>' + log + '</p>';
+              }).join('');
+            } else {
+              return '';
+            }
+          }
+          
+          const generateSourcesLinks = (issue) => {
+            if (issue.issuePredictedSolutionsSources?.length) {
+              return issue.issuePredictedSolutionsSources.map((link) => {
+                return '<a class="source-link" target="blank" href="' + link + '">' + link + '</a>';
+              }).join('');
+            } else {
+              return '';
             }
           }
     </script>
