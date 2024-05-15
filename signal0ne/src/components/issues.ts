@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { API_URL } from '../data/const';
+import { API_URL, USER_API_URL } from '../data/const';
 import {
   CodeAsContextResponseBody,
   CodeContext,
@@ -8,6 +8,7 @@ import {
   IssuesResponseBody
 } from '../types/issue';
 import { Signal0neProvider } from '../auth/signal0ne.provider';
+import { createIssueDetailsView } from './issue-details';
 
 const DEFAULT_ROOTS_ISSUES: IssueTreeDataNode[] = [
   {
@@ -20,7 +21,6 @@ const DEFAULT_ROOTS_ISSUES: IssueTreeDataNode[] = [
   }
 ];
 const INTEGRATION_API_URL = `${API_URL}/integration`;
-const USER_API_URL = `${API_URL}/user`;
 let focusedIssue: IssueTreeDataNode;
 
 export class IssuesDataProvider
@@ -150,6 +150,8 @@ export class Issues {
         if (node.type === 'issue') {
           focusedIssue = node;
           const focusedIssueDetails = await this.getIssueDetails(focusedIssue);
+          const sessions = await this.signal0neProvider.getSessions();
+          createIssueDetailsView(focusedIssueDetails, sessions[0]?.accessToken);
         }
       }
     );
