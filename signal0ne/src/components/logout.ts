@@ -11,25 +11,21 @@ export class LogoutDataProvider
   readonly onDidChangeTreeData: vscode.Event<any> =
     this._onDidChangeTreeData.event;
 
-  public getChildren(element?: AuthDataNode): AuthDataNode[] {
-    if (!element) {
-      return [
-        {
-          description: 'Logout from Signal0ne account',
-          iconPath: join(
-            __dirname,
-            '..',
-            '..',
-            'resources',
-            'signal_img_logo.svg'
-          ),
-          id: 'logout',
-          label: 'Logout'
-        }
-      ];
+  private items: AuthDataNode[] = [
+    {
+      description: 'Logout from Signal0ne account',
+      iconPath: join(__dirname, '..', '..', 'resources', 'signal_img_logo.svg'),
+      id: 'logout',
+      label: 'Logout'
     }
+  ];
 
-    return [];
+  public getChildren(element?: AuthDataNode): Thenable<AuthDataNode[]> {
+    if (element) {
+      return Promise.resolve(element.children);
+    } else {
+      return Promise.resolve(this.items);
+    }
   }
 
   public getParent(element: AuthDataNode): AuthDataNode | undefined {
@@ -62,7 +58,7 @@ export class Logout {
       signal0neProvider.logout()
     );
 
-    vscode.window.createTreeView('signal0ne', {
+    vscode.window.createTreeView('signal0neAccount', {
       treeDataProvider: logoutDataProvider
     });
   }

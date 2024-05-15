@@ -1,36 +1,35 @@
 import * as vsc from 'vscode';
 
-
 let panel: any;
 let isPanelInit = false;
 
-export function createIssueDetailsView(context: vsc.ExtensionContext, issue: any): void {
-    console.log('TEST WORKS', issue, panel)
+export function createIssueDetailsView(
+  _context: vsc.ExtensionContext,
+  issue: any
+): void {
+  console.log('TEST WORKS', issue, panel);
 
-    if (!isPanelInit) {
+  if (!isPanelInit) {
+    panel = vsc.window.createWebviewPanel(
+      'signal0ne',
+      'Issue Details',
+      vsc.ViewColumn.Beside,
+      {}
+    );
 
-          panel = vsc.window.createWebviewPanel(
-            'signal0ne',
-            'Issue Details',
-            vsc.ViewColumn.Beside,
-            {}
-          );
-    
-         panel.onDidDispose(() => {
-            isPanelInit = false;
-         },
-         null
-        )
+    panel.onDidDispose(() => {
+      isPanelInit = false;
+    }, null);
 
-          panel.webview.html = getWebviewContent(issue);
-          isPanelInit = true;
-    } else {
-        panel.webview.html = getWebviewContent(issue);
-    }
+    panel.webview.html = getWebviewContent(issue);
+    isPanelInit = true;
+  } else {
+    panel.webview.html = getWebviewContent(issue);
+  }
 }
 
-function getWebviewContent(issue: any) {
-    return `<!DOCTYPE html>
+function getWebviewContent(_issue: any) {
+  return `<!DOCTYPE html>
   <html lang="en">
   <head>
       <meta charset="UTF-8">
@@ -248,8 +247,7 @@ function getWebviewContent(issue: any) {
   </div>
   </body>
   </html>`;
-  }
-
+}
 
 // <button class="btn btn-secondary reload-button" (click)="regenerateIssue.emit()" [matTooltip]="'FEATURES.ISSUES.REGENERATE_ISSUE' | translate">
 //   <i class="bi bi-arrow-clockwise"></i>
@@ -258,5 +256,4 @@ function getWebviewContent(issue: any) {
 //   <i class="bi bi-flag-fill"></i>
 // </button>
 
-
-// 
+//

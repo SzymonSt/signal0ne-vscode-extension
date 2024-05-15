@@ -1,6 +1,7 @@
 import { JwtPayload } from 'jwt-decode';
 
 export interface AuthDataNode {
+  children?: any;
   description: string;
   iconPath: string;
   id: string;

@@ -9,10 +9,13 @@ const ISSUES_LIST_REFRESH_INTERVAL = 1000 * 15;
 const TOKEN_REFRESH_INTERVAL = 1000 * 60;
 const TOKEN_REFRESH_TIMEOUT_THRESHOLD = 1000 * 60 * 3;
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
   const signal0neProvider = new Signal0neProvider(context);
   let issueController: Issues | null;
   let refreshIssuesInterval: NodeJS.Timeout;
+  let loginProvider: Login;
+
+  await vscode.commands.executeCommand('setContext', 'showWelcomeView', true);
 
   context.subscriptions.push(signal0neProvider);
 
@@ -34,10 +37,10 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }, TOKEN_REFRESH_INTERVAL);
 
-  new Login(context, signal0neProvider);
+  loginProvider = new Login(context, signal0neProvider);
 
   signal0neProvider.onDidAuthenticate(() => {
-    new Logout(context, signal0neProvider);
+    loginProvider.loginDataProvider.setShowItems(true);
 
     if (!issueController) {
       issueController = new Issues(context, signal0neProvider);
@@ -48,7 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   signal0neProvider.onDidLogout(() => {
-    new Login(context, signal0neProvider);
+    loginProvider.loginDataProvider.setShowItems(false);
 
     issueController = null;
     clearInterval(refreshIssuesInterval);

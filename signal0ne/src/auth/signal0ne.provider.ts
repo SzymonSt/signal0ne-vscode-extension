@@ -107,6 +107,18 @@ export class Signal0neProvider
 
       this._onDidAuthenticate.fire();
 
+      await vscode.commands.executeCommand(
+        'setContext',
+        'showIssuesView',
+        true
+      );
+
+      await vscode.commands.executeCommand(
+        'setContext',
+        'showWelcomeView',
+        false
+      );
+
       console.log('Session created', session.accessToken);
       return session;
     } catch (err) {
@@ -150,6 +162,18 @@ export class Signal0neProvider
     const sessions = await this.getSessions();
 
     if (sessions[0]) {
+      await vscode.commands.executeCommand(
+        'setContext',
+        'showIssuesView',
+        false
+      );
+
+      await vscode.commands.executeCommand(
+        'setContext',
+        'showWelcomeView',
+        true
+      );
+
       this.removeSession(sessions[0].id);
       this._onDidLogout.fire();
     }
