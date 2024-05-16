@@ -107,18 +107,6 @@ export class Signal0neProvider
 
       this._onDidAuthenticate.fire();
 
-      await vscode.commands.executeCommand(
-        'setContext',
-        'showIssuesView',
-        true
-      );
-
-      await vscode.commands.executeCommand(
-        'setContext',
-        'showWelcomeView',
-        false
-      );
-
       console.log('Session created', session.accessToken);
       return session;
     } catch (err) {
@@ -144,6 +132,7 @@ export class Signal0neProvider
   public async loginInitialSession(): Promise<void> {
     try {
       const port = await getPort();
+
       const uri = vscode.Uri.parse(
         `${AUTH_URL}/login?callbackUrl=http://localhost:${port}`
       );
@@ -151,6 +140,7 @@ export class Signal0neProvider
       vscode.env.openExternal(uri);
 
       this.tokenPair = await this.login(port);
+
       await this.createSession([]);
     } catch (err) {
       vscode.window.showErrorMessage(`Failed to sign in: ${err}`);
@@ -162,18 +152,6 @@ export class Signal0neProvider
     const sessions = await this.getSessions();
 
     if (sessions[0]) {
-      await vscode.commands.executeCommand(
-        'setContext',
-        'showIssuesView',
-        false
-      );
-
-      await vscode.commands.executeCommand(
-        'setContext',
-        'showWelcomeView',
-        true
-      );
-
       this.removeSession(sessions[0].id);
       this._onDidLogout.fire();
     }

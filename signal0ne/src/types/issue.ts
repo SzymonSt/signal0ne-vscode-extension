@@ -1,3 +1,5 @@
+import * as vscode from 'vscode';
+
 export interface CodeAsContextResponseBody {
   error?: string;
   message: string;
@@ -38,11 +40,7 @@ export interface IssuesResponseBody {
   max: number;
 }
 
-export interface IssueTreeDataNode {
-  description: string;
-  iconPath: string;
-  id: string;
-  label: string;
+export interface IssueTreeDataNode extends vscode.TreeItem {
   parent?: IssueTreeDataNode;
   type: 'empty' | 'environment' | 'issue';
 }
