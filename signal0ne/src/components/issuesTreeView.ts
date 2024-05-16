@@ -23,13 +23,14 @@ const INTEGRATION_API_URL = `${API_URL}/integration`;
 const USER_API_URL = `${API_URL}/user`;
 let focusedIssue: IssueTreeDataNode;
 
-export class IssuesDataProvider
+export class IssuesTreeDataProvider
   implements vscode.TreeDataProvider<IssueTreeDataNode>
 {
   private defaultRoots = DEFAULT_ROOTS_ISSUES;
-  private _onDidChangeTreeData: vscode.EventEmitter<any> =
-    new vscode.EventEmitter<any>();
-  readonly onDidChangeTreeData: vscode.Event<any> =
+  private _onDidChangeTreeData = new vscode.EventEmitter<
+    IssueTreeDataNode | undefined
+  >();
+  readonly onDidChangeTreeData: vscode.Event<IssueTreeDataNode | undefined> =
     this._onDidChangeTreeData.event;
 
   constructor(private signal0neProvider: Signal0neProvider) {}
@@ -42,7 +43,6 @@ export class IssuesDataProvider
     const sessions = await this.signal0neProvider.getSessions();
 
     if (element.type === 'environment' && sessions.length) {
-      console.log('SESSIONS:', sessions);
       const options = {
         headers: {
           Authorization: `Bearer ${sessions[0].accessToken}`,
@@ -128,20 +128,20 @@ export class IssuesDataProvider
     }
   }
 
-  public refresh(): void {
+  public refresh() {
     this._onDidChangeTreeData.fire(undefined);
   }
 }
 
-export class Issues {
+export class IssuesTreeView {
+  private issuesTreeDataProvider: IssuesTreeDataProvider;
   private signal0neProvider: Signal0neProvider;
-  public issuesViewDataProvider: IssuesDataProvider;
 
   constructor(
     _context: vscode.ExtensionContext,
     signal0neProvider: Signal0neProvider
   ) {
-    this.issuesViewDataProvider = new IssuesDataProvider(signal0neProvider);
+    this.issuesTreeDataProvider = new IssuesTreeDataProvider(signal0neProvider);
     this.signal0neProvider = signal0neProvider;
 
     vscode.commands.registerCommand(
@@ -155,13 +155,14 @@ export class Issues {
     );
 
     vscode.window.createTreeView('signal0neIssue', {
-      showCollapseAll: true,
-      treeDataProvider: this.issuesViewDataProvider
+      treeDataProvider: this.issuesTreeDataProvider
     });
   }
 
   public async fixCode(codeContext: CodeContext): Promise<string> {
     const sessions = await this.signal0neProvider.getSessions();
+
+    if (!sessions?.[0]) return '';
 
     const options = {
       body: JSON.stringify(codeContext),
@@ -176,15 +177,17 @@ export class Issues {
       `${INTEGRATION_API_URL}/issues/${focusedIssue.id}/add-code-as-context`,
       options
     );
-    const resBody = (await res.json()) as CodeAsContextResponseBody;
+    const resData = (await res.json()) as CodeAsContextResponseBody;
 
-    if (res.ok) return resBody.newCode;
+    if (res.ok) return resData.newCode;
 
     return '';
   }
 
   public async getIssueDetails(issue: IssueTreeDataNode): Promise<Issue> {
     const sessions = await this.signal0neProvider.getSessions();
+
+    if (!sessions?.[0]) return {} as Issue;
 
     const options = {
       headers: {
@@ -197,10 +200,12 @@ export class Issues {
     const res = await fetch(`${USER_API_URL}/issues/${issue.id}`, options);
     const resBody = (await res.json()) as Issue;
 
-    if (res.ok) {
-      return resBody;
-    }
+    if (res.ok) return resBody;
 
     return {} as Issue;
+  }
+
+  public refresh() {
+    this.issuesTreeDataProvider.refresh();
   }
 }

@@ -31,6 +31,21 @@
         "title": "Logout from Signal0ne"
       }
     ],
+    "configuration": {
+      "title": "Signal0ne Configuration",
+      "properties": {
+        "signal0ne.showIssuesView": {
+          "default": false,
+          "description": "Show 'Issues' TreeView in Signal0ne",
+          "type": "boolean"
+        },
+        "signal0ne.showWelcomeView": {
+          "default": true,
+          "description": "Show 'Signal0ne' WelcomeView in Signal0ne",
+          "type": "boolean"
+        }
+      }
+    },
     "menus": {
       "editor/context": [
         {
@@ -50,14 +65,15 @@
       "signal0ne": [
         {
           "icon": "resources/signal_img_logo.svg",
-          "id": "signal0ne",
-          "name": "Signal0ne",
-          "type": "tree"
+          "id": "signal0neIssue",
+          "name": "Issues",
+          "type": "tree",
+          "when": "showIssuesView"
         },
         {
           "icon": "resources/signal_img_logo.svg",
-          "id": "signal0neIssue",
-          "name": "Issues",
+          "id": "signal0ne",
+          "name": "Signal0ne",
           "type": "tree"
         }
       ]
@@ -73,8 +89,9 @@
     },
     "viewsWelcome": [
       {
+        "contents": "Welcome to Signal0ne!\n Please sign in to explore your issues and fix then with ease!\n[Sign In](command:signal0ne.login)\nTo learn more about Signal0ne visit our webpage [here](https://signaloneai.com/).",
         "view": "signal0ne",
-        "contents": "In order to use Signal0ne, you need to sign in."
+        "when":"showWelcomeView"
       }
     ]
   },
