@@ -8,6 +8,8 @@ import {
   IssuesResponseBody
 } from '../types/issue';
 import { Signal0neProvider } from '../auth/signal0ne.provider';
+import { createIssueDetailsView } from '../components/issue-details'
+
 
 const DEFAULT_ROOTS_ISSUES: IssueTreeDataNode[] = [
   {
@@ -150,6 +152,7 @@ export class IssuesTreeView {
         if (node.type === 'issue') {
           focusedIssue = node;
           const focusedIssueDetails = await this.getIssueDetails(focusedIssue);
+          createIssueDetailsView(focusedIssueDetails, this.signal0neProvider);
         }
       }
     );
