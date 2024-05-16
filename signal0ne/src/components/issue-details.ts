@@ -3,9 +3,10 @@ import {
   Issue
 } from '../types/issue';
 import { USER_API_URL } from '../data/const';
+import { join } from 'path';
 let panel: any;
 let isPanelInit = false;
-export function createIssueDetailsView(issue: Issue, accessToken: string): void {
+export function createIssueDetailsView(issue: any, accessToken: string): void {
     accessToken = accessToken;
     if (!isPanelInit) {
 
@@ -17,16 +18,34 @@ export function createIssueDetailsView(issue: Issue, accessToken: string): void 
               enableScripts: true
             }
           );
+
     
          panel.onDidDispose(() => {
+            issue = null;
             isPanelInit = false;
          },
          null
         )
-
+          const onDiskPath = vsc.Uri.file(join(
+            __dirname,
+            '..',
+            '..',
+            'resources',
+            'signal_img_logo.svg'
+          ));
+          panel.iconPath = onDiskPath;
           panel.webview.html = getWebviewContent(issue, accessToken);
+          
           isPanelInit = true;
     } else {
+      const onDiskPath = vsc.Uri.file(join(
+        __dirname,
+        '..',
+        '..',
+        'resources',
+        'signal_img_logo.svg'
+      ));
+        panel.iconPath = onDiskPath;
         panel.webview.html = getWebviewContent(issue, accessToken);
     }
 }
@@ -44,10 +63,19 @@ function getWebviewContent(issue: any, accessToken: string) {
         }
         .sources {
             overflow-y: auto;
-            max-height:100px;
+            max-height: 100px;
             border: 1px solid white;
             padding: 12px;
-            width: 100%;
+            width: 90%;
+        }
+
+        .source-paragraph {
+          margin-bottom: 8px;
+          margin-top: 0;
+        }
+
+        .source-paragraph:last-child {
+          margin-bottom: 0px;
         }
 
         .sources-title {
@@ -59,20 +87,20 @@ function getWebviewContent(issue: any, accessToken: string) {
             border: 1px solid white;
             border-radius: 8px;
             display: block;
-            width: 100%;
+            width: 90%;
             word-wrap: break-word
         }
 
         .container {
-            width: 75%;
+            width: 100%;
         }
 
         .tooltip-text {
             visibility: hidden;
             position: absolute;
             top: 40px;
-            left: -50px;
-            width: 150px;
+            left: -40px;
+            width: max-content;
             z-index: 1;
             color: black;
             font-size: 12px;
@@ -80,6 +108,7 @@ function getWebviewContent(issue: any, accessToken: string) {
             border-radius: 16px;
             padding: 10px 15px 10px 15px;
             box-shadow: 0px 2px 8px 0px #0000001F;
+            display: inline-block;
           }
         
           .hover-text {
@@ -103,9 +132,9 @@ function getWebviewContent(issue: any, accessToken: string) {
             display: flex;
             font-size: 1.5rem;
             height: 3rem;
-            justify-content: space-between;
+            justify-content: space-around;
             padding: 0 8px;
-            width: 3rem;
+            width: 4rem;
           }
 
           .likes-container svg {
@@ -249,8 +278,9 @@ function getWebviewContent(issue: any, accessToken: string) {
     <div class="container">
         <h2>Insights: </h2>
         <p id="log-summary-container">${issue.logSummary}</p>
+
+        <h2 class="sources-title">Sources</h2>
         <div class="sources">
-          <h4 class="sources-title">Sources</h4>
           <div id="sources-container">
             ${generateSources(issue)}
           </div>
@@ -411,7 +441,11 @@ function getWebviewContent(issue: any, accessToken: string) {
           const generateSources = (issue) => {
             if (issue.logs?.length) {
               return issue.logs.map((log) => {
-                return '<p>' + log + '</p>';
+                if (log) {
+                  return '<p class="source-paragraph">' + log + '</p>';
+                } else {
+                  return '';
+                }
               }).join('');
             } else {
               return '';
@@ -435,7 +469,11 @@ function getWebviewContent(issue: any, accessToken: string) {
 const generateSources = (issue: any) => {
   if (issue.logs?.length) {
     return issue.logs.map((log: string) => {
-      return `<p>${log}</p>`;
+      if (log) {
+        return `<p class="source-paragraph">${log}</p>`;
+      } else {
+        return '';
+      }
     }).join('');
   } else {
     return '';
