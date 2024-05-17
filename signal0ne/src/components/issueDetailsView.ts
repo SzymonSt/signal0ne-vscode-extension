@@ -4,10 +4,12 @@ import {
 } from '../types/issue';
 import { USER_API_URL } from '../data/const';
 import { join } from 'path';
+import { Signal0neProvider } from '../auth/signal0ne.provider'
 let panel: any;
 let isPanelInit = false;
-export function createIssueDetailsView(issue: any, accessToken: string): void {
-    accessToken = accessToken;
+export async function createIssueDetailsView(issue: any, signal0neProvider: Signal0neProvider): Promise<void> {
+  const sessions = await signal0neProvider.getSessions();
+  const accessToken = sessions[0].accessToken;
     if (!isPanelInit) {
 
           panel = vsc.window.createWebviewPanel(
