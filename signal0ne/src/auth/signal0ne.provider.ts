@@ -132,6 +132,7 @@ export class Signal0neProvider
   public async loginInitialSession(): Promise<void> {
     try {
       const port = await getPort();
+
       const uri = vscode.Uri.parse(
         `${AUTH_URL}/login?callbackUrl=http://localhost:${port}`
       );
@@ -139,6 +140,7 @@ export class Signal0neProvider
       vscode.env.openExternal(uri);
 
       this.tokenPair = await this.login(port);
+
       await this.createSession([]);
     } catch (err) {
       vscode.window.showErrorMessage(`Failed to sign in: ${err}`);
