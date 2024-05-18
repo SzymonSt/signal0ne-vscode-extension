@@ -279,7 +279,7 @@ function getWebviewContent(issue: any, accessToken: string) {
     <div id="loader-background" class="loader-background"></div> 
     <div class="container">
         <h2>Insights: </h2>
-        <p id="log-summary-container">${issue.logSummary}</p>
+        <p id="log-summary-container">${issue.logSummary || "Sorry we couldn't generate summary for you"}</p>
 
         <h2 class="sources-title">Sources</h2>
         <div class="sources">
@@ -288,7 +288,7 @@ function getWebviewContent(issue: any, accessToken: string) {
           </div>
         </div>
         <p id="predicted-solutions-containers">
-          ${issue.predictedSolutionsSummary}
+          ${issue.predictedSolutionsSummary || "Sorry we couldn't generate proposed solution for you"}
         </p>
         <h2>Sources: </h2>
         <div id="sources-links-container">
@@ -421,8 +421,8 @@ function getWebviewContent(issue: any, accessToken: string) {
             const body = await res.json();
             toggleLoader(false);
             if (res.ok) {
-              document.getElementById('log-summary-container').innerHTML = body.logSummary;
-              document.getElementById('predicted-solutions-containers').innerHTML = body.predictedSolutionsSummary;
+              document.getElementById('log-summary-container').innerHTML = body.logSummary || "Sorry we couldn't generate summary for you";
+              document.getElementById('predicted-solutions-containers').innerHTML = body.predictedSolutionsSummary || "Sorry we couldn't generate proposed solution for you";
               document.getElementById('sources-container').innerHTML = generateSources(body);
               document.getElementById('sources-links-container').innerHTML = generateSourcesLinks(body);
             }
@@ -450,7 +450,7 @@ function getWebviewContent(issue: any, accessToken: string) {
                 }
               }).join('');
             } else {
-              return '';
+              return "<p>Sorry we couldn't generate sources for you</p>"
             }
           }
           
@@ -460,7 +460,7 @@ function getWebviewContent(issue: any, accessToken: string) {
                 return '<a class="source-link" target="blank" href="' + link + '">' + link + '</a>';
               }).join('');
             } else {
-              return '';
+              return "<p>Sorry we couldn't generate sources links for you</p>";
             }
           }
     </script>
@@ -478,7 +478,7 @@ const generateSources = (issue: any) => {
       }
     }).join('');
   } else {
-    return '';
+    return "<p>Sorry we couldn't generate sources for you</p>"
   }
 
 }
@@ -489,6 +489,6 @@ const generateSourcesLinks = (issue: any) => {
       return `<a class="source-link" target="blank" href="${link}">${link}</a>`;
     }).join('');
   } else {
-    return '';
+    return "<p>Sorry we couldn't generate sources links for you</p>";
   }
 }
