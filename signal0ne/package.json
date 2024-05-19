@@ -91,7 +91,7 @@
       {
         "contents": "Welcome to Signal0ne!\n Please sign in to explore your issues and fix then with ease!\n[Sign In](command:signal0ne.login)\nTo learn more about Signal0ne visit our webpage [here](https://signaloneai.com/).",
         "view": "signal0ne",
-        "when":"showWelcomeView"
+        "when": "showWelcomeView"
       }
     ]
   },
@@ -106,6 +106,7 @@
     "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
+    "@types/markdown-it": "^14.1.1",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
     "@types/vscode": "^1.87.0",
@@ -122,6 +123,7 @@
     "get-port": "^7.1.0",
     "get-port-please": "^3.1.2",
     "jwt-decode": "^4.0.0",
+    "markdown-it": "^14.1.0",
     "server-destroy": "^1.0.1",
     "uuid": "^9.0.1"
   }
