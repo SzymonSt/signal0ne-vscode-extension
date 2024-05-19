@@ -7,9 +7,8 @@ import {
   IssueTreeDataNode,
   IssuesResponseBody
 } from '../types/issue';
+import { createIssueDetailsView } from './issueDetailsView';
 import { Signal0neProvider } from '../auth/signal0ne.provider';
-import { createIssueDetailsView } from './issueDetailsView'
-
 
 const DEFAULT_ROOTS_ISSUES: IssueTreeDataNode[] = [
   {

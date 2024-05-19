@@ -120,6 +120,23 @@ export class Signal0neProvider
     this._disposable.dispose();
   }
 
+  public async getAndValidateRefreshToken(): Promise<string> {
+    const refreshTokenString =
+      (await this.context.secrets.get(REFRESH_TOKEN_KEY)) || '';
+
+    const decodedRefreshToken =
+      jwtDecode<Signal0neJwtPayload>(refreshTokenString);
+
+    if (
+      decodedRefreshToken.exp &&
+      decodedRefreshToken.exp > Math.floor(Date.now() / 1000)
+    ) {
+      return refreshTokenString;
+    } else {
+      return '';
+    }
+  }
+
   public async getSessions(): Promise<readonly vscode.AuthenticationSession[]> {
     const sessionData = await this.context.secrets.get(SESSION_SECRET_KEY);
 
@@ -128,18 +145,6 @@ export class Signal0neProvider
     }
 
     return [];
-  }
-
-  public async getAndValidateRefreshToken(): Promise<string> {
-    const refreshTokeString = await this.context.secrets.get(REFRESH_TOKEN_KEY) || '';
-    const decodedRefreshToken = jwtDecode<Signal0neJwtPayload>(
-      refreshTokeString
-    );
-    if (decodedRefreshToken.exp && decodedRefreshToken.exp > Math.floor(Date.now() / 1000)) {
-      return refreshTokeString;
-    }else{
-      return ''
-    }
   }
 
   public async loginInitialSession(): Promise<void> {
@@ -158,17 +163,6 @@ export class Signal0neProvider
     } catch (err) {
       vscode.window.showErrorMessage(`Failed to sign in: ${err}`);
       throw err;
-    }
-  }
-
-  public async validateAccessToken(session: vscode.AuthenticationSession): Promise<boolean> {
-    const decodedToken = jwtDecode<Signal0neJwtPayload>(
-      session.accessToken
-    );
-    if (decodedToken.exp && decodedToken.exp > TOKEN_REFRESH_TIMEOUT_THRESHOLD) {
-      return true;
-    }else{
-      return false
     }
   }
 
@@ -237,5 +231,20 @@ export class Signal0neProvider
 
   public setTokenPair(tokenPair: TokenPair) {
     this.tokenPair = tokenPair;
+  }
+
+  public async validateAccessToken(
+    session: vscode.AuthenticationSession
+  ): Promise<boolean> {
+    const decodedToken = jwtDecode<Signal0neJwtPayload>(session.accessToken);
+
+    if (
+      decodedToken.exp &&
+      decodedToken.exp > TOKEN_REFRESH_TIMEOUT_THRESHOLD
+    ) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
