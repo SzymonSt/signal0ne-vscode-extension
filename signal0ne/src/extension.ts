@@ -55,7 +55,7 @@ export async function activate(context: vscode.ExtensionContext) {
       const currentTime = Math.floor(Date.now() / 1000);
       const tokenTimeout = tokenExpiration - currentTime;
 
-      if (tokenTimeout < TOKEN_REFRESH_TIMEOUT_THRESHOLD) {
+      if (tokenTimeout < Math.floor(TOKEN_REFRESH_TIMEOUT_THRESHOLD / 1000)) {
         await signal0neProvider.refreshSession(session);
       }
     }
