@@ -61,6 +61,8 @@ export async function activate(context: vscode.ExtensionContext) {
     }
   }
 
+  sessionHandling();
+
   context.subscriptions.push(signal0neProvider);
 
   setInterval(async () => {
