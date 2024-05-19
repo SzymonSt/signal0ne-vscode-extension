@@ -210,4 +210,8 @@ export class Signal0neProvider
       });
     }
   }
+
+  public setTokenPair(tokenPair: TokenPair) {
+    this.tokenPair = tokenPair;
+  }
 }
