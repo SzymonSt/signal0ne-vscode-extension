@@ -10,11 +10,36 @@ const TOKEN_REFRESH_TIMEOUT_THRESHOLD = 1000 * 60 * 3;
 
 export async function activate(context: vscode.ExtensionContext) {
   const signal0neProvider = new Signal0neProvider(context);
-  let authTreeView: AuthTreeView;
+  let authTreeView: AuthTreeView = new AuthTreeView(context, signal0neProvider);
   let issuesTreeView: IssuesTreeView | null;
   let refreshIssuesInterval: NodeJS.Timeout;
 
-  await vscode.commands.executeCommand('setContext', 'showWelcomeView', true);
+  const sessions = await signal0neProvider.getSessions();
+
+  if (sessions.length > 0 && sessions[0]) {
+    const refreshToken = await context.secrets.get('signal0ne.refresh_token');
+
+    if (!refreshToken) return;
+
+    signal0neProvider.setTokenPair({
+      accessToken: sessions[0].accessToken,
+      refreshToken
+    });
+
+    await vscode.commands.executeCommand('setContext', 'showIssuesView', true);
+    await vscode.commands.executeCommand(
+      'setContext',
+      'showWelcomeView',
+      false
+    );
+
+    signal0neProvider.createSession([]);
+  } else {
+    await vscode.commands.executeCommand('setContext', 'showIssuesView', false);
+    await vscode.commands.executeCommand('setContext', 'showWelcomeView', true);
+
+    authTreeView.setShowAccountTreeItems(false);
+  }
 
   context.subscriptions.push(signal0neProvider);
 
@@ -30,13 +55,11 @@ export async function activate(context: vscode.ExtensionContext) {
       const currentTime = Math.floor(Date.now() / 1000);
       const tokenTimeout = tokenExpiration - currentTime;
 
-      if (tokenTimeout < TOKEN_REFRESH_TIMEOUT_THRESHOLD) {
+      if (tokenTimeout < Math.floor(TOKEN_REFRESH_TIMEOUT_THRESHOLD / 1000)) {
         await signal0neProvider.refreshSession(session);
       }
     }
   }, TOKEN_REFRESH_INTERVAL);
-
-  authTreeView = new AuthTreeView(context, signal0neProvider);
 
   signal0neProvider.onDidAuthenticate(async () => {
     await vscode.commands.executeCommand('setContext', 'showIssuesView', true);
