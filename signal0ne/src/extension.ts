@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import { AuthTreeView } from './components/authTreeView';
 import { IssuesTreeView } from './components/issuesTreeView';
-import { jwtDecode } from 'jwt-decode';
 import { Signal0neProvider } from './auth/signal0ne.provider';
 
 const ISSUES_LIST_REFRESH_INTERVAL = 1000 * 15; // In milliseconds
@@ -13,60 +12,74 @@ export async function activate(context: vscode.ExtensionContext) {
   let issuesTreeView: IssuesTreeView | null;
   let refreshIssuesInterval: NodeJS.Timeout;
 
-  const teardownExtensionFunction = async function teardownExtensionMainView() {
-    await vscode.commands.executeCommand('setContext', 'showIssuesView', false);
-    await vscode.commands.executeCommand('setContext', 'showWelcomeView', true);
-  
-    authTreeView.authTreeViewRef.title = 'Signal0ne';
-    authTreeView.setShowAccountTreeItems(false);
-    issuesTreeView = null;
-  
-    clearInterval(refreshIssuesInterval);
-  }
-
-  const sessionHandling = async function sessionHandling() {
+  const sessionHandler = async () => {
     const sessions = await signal0neProvider.getSessions();
 
     if (sessions.length > 0 && sessions[0]) {
       const refreshToken = await signal0neProvider.getAndValidateRefreshToken();
-  
+
       if (!refreshToken) return;
-  
-      if (! await signal0neProvider.validateAccessToken(sessions[0])) {
+
+      const isAccessTokenValid = await signal0neProvider.validateAccessToken(
+        sessions[0]
+      );
+
+      if (!isAccessTokenValid) {
         await signal0neProvider.refreshSession(sessions[0]);
-        await vscode.commands.executeCommand('setContext', 'showIssuesView', true);
+
+        await vscode.commands.executeCommand(
+          'setContext',
+          'showIssuesView',
+          true
+        );
         await vscode.commands.executeCommand(
           'setContext',
           'showWelcomeView',
           false
         );
+
         return;
       }
-  
+
       signal0neProvider.setTokenPair({
         accessToken: sessions[0].accessToken,
         refreshToken
       });
-  
-      await vscode.commands.executeCommand('setContext', 'showIssuesView', true);
+
+      await vscode.commands.executeCommand(
+        'setContext',
+        'showIssuesView',
+        true
+      );
       await vscode.commands.executeCommand(
         'setContext',
         'showWelcomeView',
         false
       );
-  
+
       signal0neProvider.createSession([]);
     } else {
-      teardownExtensionFunction();
+      teardownExtension();
     }
-  }
+  };
 
-  sessionHandling();
+  const teardownExtension = async () => {
+    await vscode.commands.executeCommand('setContext', 'showIssuesView', false);
+    await vscode.commands.executeCommand('setContext', 'showWelcomeView', true);
+
+    authTreeView.authTreeViewRef.title = 'Signal0ne';
+    authTreeView.setShowAccountTreeItems(false);
+    issuesTreeView = null;
+
+    clearInterval(refreshIssuesInterval);
+  };
+
+  sessionHandler();
 
   context.subscriptions.push(signal0neProvider);
 
   setInterval(async () => {
-    sessionHandling();
+    sessionHandler();
   }, TOKEN_REFRESH_INTERVAL);
 
   signal0neProvider.onDidAuthenticate(async () => {
@@ -85,7 +98,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
       refreshIssuesInterval = setInterval(async () => {
         const sessions = await signal0neProvider.getSessions();
-        if (sessions.length > 0){
+
+        if (sessions.length > 0) {
           issuesTreeView?.refresh();
         }
       }, ISSUES_LIST_REFRESH_INTERVAL);
@@ -93,7 +107,7 @@ export async function activate(context: vscode.ExtensionContext) {
   });
 
   signal0neProvider.onDidLogout(async () => {
-    teardownExtensionFunction();
+    teardownExtension();
   });
 
   vscode.commands.registerCommand('signal0ne.fixCode', async () => {
