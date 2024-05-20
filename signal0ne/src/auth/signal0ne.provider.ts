@@ -10,6 +10,7 @@ const AUTH_URL = 'http://localhost:37003';
 const AUTH_API_URL = `${API_URL}/auth`;
 const REFRESH_TOKEN_KEY = 'signal0ne.refresh_token';
 const SESSION_SECRET_KEY = 'signal0ne.sessions';
+const TOKEN_REFRESH_TIMEOUT_THRESHOLD = 60 * 3; //In seconds
 
 export class Signal0neProvider
   implements vscode.AuthenticationProvider, vscode.Disposable
@@ -129,6 +130,18 @@ export class Signal0neProvider
     return [];
   }
 
+  public async getAndValidateRefreshToken(): Promise<string> {
+    const refreshTokeString = await this.context.secrets.get(REFRESH_TOKEN_KEY) || '';
+    const decodedRefreshToken = jwtDecode<Signal0neJwtPayload>(
+      refreshTokeString
+    );
+    if (decodedRefreshToken.exp && decodedRefreshToken.exp > Math.floor(Date.now() / 1000)) {
+      return refreshTokeString;
+    }else{
+      return ''
+    }
+  }
+
   public async loginInitialSession(): Promise<void> {
     try {
       const port = await getPort();
@@ -145,6 +158,17 @@ export class Signal0neProvider
     } catch (err) {
       vscode.window.showErrorMessage(`Failed to sign in: ${err}`);
       throw err;
+    }
+  }
+
+  public async validateAccessToken(session: vscode.AuthenticationSession): Promise<boolean> {
+    const decodedToken = jwtDecode<Signal0neJwtPayload>(
+      session.accessToken
+    );
+    if (decodedToken.exp && decodedToken.exp > TOKEN_REFRESH_TIMEOUT_THRESHOLD) {
+      return true;
+    }else{
+      return false
     }
   }
 

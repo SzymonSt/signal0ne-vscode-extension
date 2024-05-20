@@ -125,6 +125,7 @@
     "jwt-decode": "^4.0.0",
     "markdown-it": "^14.1.0",
     "server-destroy": "^1.0.1",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "vsce": "^2.15.0"
   }
 }
