@@ -1,12 +1,12 @@
 import * as vsc from 'vscode';
-import { Issue } from '../types/issue';
+import markdownit from 'markdown-it'
 import { join } from 'path';
 import { Signal0neProvider } from '../auth/signal0ne.provider';
 import { USER_API_URL } from '../data/const';
 
 let isPanelInit = false;
 let panel: any;
-
+const md = markdownit();
 export async function createIssueDetailsView(
   issue: any,
   signal0neProvider: Signal0neProvider
@@ -78,9 +78,6 @@ function getWebviewContent(issue: any, accessToken: string) {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Issue details</title>
       <style>
-        .text-primary {
-            color: #3f51b5;
-        }
         .sources {
             overflow-y: auto;
             max-height: 100px;
@@ -234,7 +231,6 @@ function getWebviewContent(issue: any, accessToken: string) {
             margin-right: 10px;
           }
 
-          d-flex align-items-center justify-content-center
           .d-flex {
             display: flex;
           }
@@ -310,8 +306,8 @@ function getWebviewContent(issue: any, accessToken: string) {
         </div>
         <p id="predicted-solutions-containers">
           ${
-            issue.predictedSolutionsSummary ||
-            "Sorry we couldn't generate proposed solution for you"
+            issue.predictedSolutionsSummary ? md.render(issue.predictedSolutionsSummary)
+            : "Sorry we couldn't generate proposed solution for you"
           }
         </p>
         <h2>Sources: </h2>
