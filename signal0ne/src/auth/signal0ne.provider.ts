@@ -240,7 +240,7 @@ export class Signal0neProvider
 
     if (
       decodedToken.exp &&
-      (Math.floor(Date.now() / 1000) -  decodedToken.exp) > TOKEN_REFRESH_TIMEOUT_THRESHOLD
+      (decodedToken.exp - (Math.floor(Date.now() / 1000))) > TOKEN_REFRESH_TIMEOUT_THRESHOLD
     ) {
       return true;
     } else {
