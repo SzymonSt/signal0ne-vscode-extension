@@ -1,8 +1,10 @@
 import * as vsc from 'vscode';
+import markdownit from 'markdown-it'
 
 
 let panel: any;
 let isPanelInit = false;
+const md = markdownit();
 
 export function createProposedCodeSolutionView(explanation: any): void {
     if (!isPanelInit) {
@@ -190,7 +192,7 @@ function getWebviewContent(explanation: any) {
   </head>
   <body>
     <div class="container">
-          ${explanation}
+    ${md.render(explanation)}
     </div>
     <div class="icons-container">
         <div class="likes-container">
