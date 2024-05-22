@@ -236,11 +236,12 @@ export class Signal0neProvider
   public async validateAccessToken(
     session: vscode.AuthenticationSession
   ): Promise<boolean> {
+    if(!session?.accessToken) return false;
     const decodedToken = jwtDecode<Signal0neJwtPayload>(session.accessToken);
 
     if (
       decodedToken.exp &&
-      (Math.floor(Date.now() / 1000) -  decodedToken.exp) > TOKEN_REFRESH_TIMEOUT_THRESHOLD
+      (decodedToken.exp - (Math.floor(Date.now() / 1000))) > TOKEN_REFRESH_TIMEOUT_THRESHOLD
     ) {
       return true;
     } else {

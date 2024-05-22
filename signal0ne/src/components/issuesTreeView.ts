@@ -52,7 +52,7 @@ export class IssuesTreeDataProvider
         method: 'GET'
       };
 
-      const res = await fetch(`${USER_API_URL}/issues`, options);
+      const res = await fetch(`${USER_API_URL}/issues?isResolved=false`, options);
       const resData = (await res.json()) as IssuesResponseBody;
 
       if (res.ok) {
@@ -168,10 +168,10 @@ export class IssuesTreeView {
     });
   }
 
-  public async fixCode(codeContext: CodeContext): Promise<string> {
+  public async fixCode(codeContext: CodeContext): Promise<CodeAsContextResponseBody> {
     const sessions = await this.signal0neProvider.getSessions();
 
-    if (!sessions?.[0]) return '';
+    if (!sessions?.[0]) return {} as CodeAsContextResponseBody;
 
     const options = {
       body: JSON.stringify(codeContext),
@@ -188,9 +188,9 @@ export class IssuesTreeView {
     );
     const resData = (await res.json()) as CodeAsContextResponseBody;
 
-    if (res.ok) return resData.newCode;
+    if (res.ok) return resData;
 
-    return '';
+    return {} as CodeAsContextResponseBody;
   }
 
   public async getIssueDetails(issue: IssueTreeDataNode): Promise<Issue> {
