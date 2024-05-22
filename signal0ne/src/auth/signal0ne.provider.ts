@@ -236,7 +236,7 @@ export class Signal0neProvider
   public async validateAccessToken(
     session: vscode.AuthenticationSession
   ): Promise<boolean> {
-    if(!session.accessToken) return false;
+    if(!session?.accessToken) return false;
     const decodedToken = jwtDecode<Signal0neJwtPayload>(session.accessToken);
 
     if (
