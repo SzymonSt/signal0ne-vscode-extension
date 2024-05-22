@@ -1,44 +1,51 @@
-import * as vsc from 'vscode';
-import markdownit from 'markdown-it'
+import * as vscode from 'vscode';
 import { join } from 'path';
 import { Signal0neProvider } from '../auth/signal0ne.provider';
 import { USER_API_URL } from '../data/const';
+import markdownit from 'markdown-it';
+
+export let issueDetailsSidePanel: vscode.WebviewPanel;
 
 let isPanelInit = false;
-let panel: any;
 const md = markdownit();
+
 export async function createIssueDetailsView(
   issue: any,
-  signal0neProvider: Signal0neProvider
+  signal0neProvider: Signal0neProvider,
+  forcePanelClose?: boolean
 ): Promise<void> {
   const sessions = await signal0neProvider.getSessions();
   const accessToken = sessions[0].accessToken;
-  const onDiskPath = vsc.Uri.file(
+  const onDiskPath = vscode.Uri.file(
     join(__dirname, '..', '..', 'resources', 'signal_img_logo.svg')
   );
 
   if (!isPanelInit) {
-    panel = vsc.window.createWebviewPanel(
+    issueDetailsSidePanel = vscode.window.createWebviewPanel(
       'signal0ne',
       'Issue Details',
-      vsc.ViewColumn.Beside,
+      vscode.ViewColumn.Beside,
       {
         enableScripts: true
       }
     );
 
-    panel.onDidDispose(() => {
+    issueDetailsSidePanel.onDidDispose(() => {
       issue = null;
       isPanelInit = false;
     }, null);
 
-    panel.iconPath = onDiskPath;
-    panel.webview.html = getWebviewContent(issue, accessToken);
+    issueDetailsSidePanel.iconPath = onDiskPath;
+    issueDetailsSidePanel.webview.html = getWebviewContent(issue, accessToken);
 
     isPanelInit = true;
   } else {
-    panel.iconPath = onDiskPath;
-    panel.webview.html = getWebviewContent(issue, accessToken);
+    issueDetailsSidePanel.iconPath = onDiskPath;
+    issueDetailsSidePanel.webview.html = getWebviewContent(issue, accessToken);
+  }
+
+  if (forcePanelClose) {
+    issueDetailsSidePanel.dispose();
   }
 }
 
@@ -306,8 +313,9 @@ function getWebviewContent(issue: any, accessToken: string) {
         </div>
         <p id="predicted-solutions-containers">
           ${
-            issue.predictedSolutionsSummary ? md.render(issue.predictedSolutionsSummary)
-            : "Sorry we couldn't generate proposed solution for you"
+            issue.predictedSolutionsSummary
+              ? md.render(issue.predictedSolutionsSummary)
+              : "Sorry we couldn't generate proposed solution for you"
           }
         </p>
         <h2>Sources: </h2>

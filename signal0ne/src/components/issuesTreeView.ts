@@ -114,11 +114,6 @@ export class IssuesTreeDataProvider
         return {
           ...commonTreeItemProps,
           collapsibleState: vscode.TreeItemCollapsibleState.None,
-          command: {
-            arguments: [element],
-            command: 'signal0ne.issueFocus',
-            title: 'Focus Issue'
-          },
           contextValue: 'issue'
         };
       default:
@@ -137,6 +132,7 @@ export class IssuesTreeDataProvider
 export class IssuesTreeView {
   private issuesTreeDataProvider: IssuesTreeDataProvider;
   private signal0neProvider: Signal0neProvider;
+  private treeView: vscode.TreeView<IssueTreeDataNode>;
 
   constructor(
     _context: vscode.ExtensionContext,
@@ -156,8 +152,19 @@ export class IssuesTreeView {
       }
     );
 
-    vscode.window.createTreeView('signal0neIssue', {
+    this.treeView = vscode.window.createTreeView('signal0neIssue', {
       treeDataProvider: this.issuesTreeDataProvider
+    });
+
+    this.treeView.onDidChangeSelection(async e => {
+      if (e.selection && e.selection.length > 0) {
+        await vscode.commands.executeCommand(
+          'signal0ne.issueFocus',
+          e.selection[0]
+        );
+      } else {
+        createIssueDetailsView({} as Issue, this.signal0neProvider, true);
+      }
     });
   }
 

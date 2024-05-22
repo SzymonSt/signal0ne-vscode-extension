@@ -56,7 +56,6 @@
       "view/item/context": [
         {
           "command": "signal0ne.issueFocus",
-          "group": "inline",
           "when": "view == signal0neIssue && viewItem == 'issue'"
         }
       ]

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { AuthTreeView } from './components/authTreeView';
+import { issueDetailsSidePanel } from './components/issueDetailsView';
 import { IssuesTreeView } from './components/issuesTreeView';
 import { Signal0neProvider } from './auth/signal0ne.provider';
 
@@ -70,6 +71,10 @@ export async function activate(context: vscode.ExtensionContext) {
     authTreeView.authTreeViewRef.title = 'Signal0ne';
     authTreeView.setShowAccountTreeItems(false);
     issuesTreeView = null;
+
+    if (issueDetailsSidePanel) {
+      issueDetailsSidePanel.dispose();
+    }
 
     clearInterval(refreshIssuesInterval);
   };
@@ -147,4 +152,8 @@ export async function activate(context: vscode.ExtensionContext) {
   });
 }
 
-export function deactivate() {}
+export function deactivate() {
+  // if (issueDetailsSidePanel) {
+  //   issueDetailsSidePanel.dispose();
+  // }
+}
