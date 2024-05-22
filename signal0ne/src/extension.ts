@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { AuthTreeView } from './components/authTreeView';
 import { IssuesTreeView } from './components/issuesTreeView';
 import { Signal0neProvider } from './auth/signal0ne.provider';
+import { createProposedCodeSolutionView } from './components/proposedCodeSolutionView';
 
 const ISSUES_LIST_REFRESH_INTERVAL = 1000 * 15; // In milliseconds
 const TOKEN_REFRESH_INTERVAL = 1000 * 10; // In milliseconds
@@ -128,22 +129,23 @@ export async function activate(context: vscode.ExtensionContext) {
       vscode.window.showErrorMessage('Please login to Signal0ne first');
       return;
     }
+    vscode.window.showInformationMessage('Fixing the selected code snippet, please wait...');
+    const newCodeObject = await issuesTreeView.fixCode(codeSnippetContext);
 
-    const newCode = await issuesTreeView.fixCode(codeSnippetContext);
 
-    if (newCode === '') {
+    if (newCodeObject.newCode === '') {
       vscode.window.showErrorMessage(
         'Failed to fix the selected code. Please try again with different code snippet.'
       );
       return;
     }
 
-    edit(editBuilder =>
-      editBuilder.replace(
-        selection ?? new vscode.Selection(0, 0, 0, 0),
-        newCode
-      )
-    );
+    editor.edit((editBuilder) => {
+      editBuilder.replace(selection, newCodeObject.newCode);
+    })
+    vscode.commands.executeCommand('workbench.files.action.compareWithSaved', document.uri);
+    createProposedCodeSolutionView(newCodeObject.explanation);
+    vscode.window.showInformationMessage('Code fixed successfully');
   });
 }
 
