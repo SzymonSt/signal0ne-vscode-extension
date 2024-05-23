@@ -3,7 +3,6 @@ import * as vscode from 'vscode';
 export interface CodeAsContextResponseBody {
   error?: string;
   message: string;
-  newCode: string;
   explanation: string;
 }
 

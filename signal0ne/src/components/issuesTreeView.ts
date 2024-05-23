@@ -210,4 +210,8 @@ export class IssuesTreeView {
   public refresh() {
     this.issuesTreeDataProvider.refresh();
   }
+
+  public getFocusedIssue(): IssueTreeDataNode {
+    return focusedIssue;
+  }
 }
