@@ -126,26 +126,26 @@ export async function activate(context: vscode.ExtensionContext) {
     };
 
     if (!issuesTreeView) {
-      vscode.window.showErrorMessage('Please login to Signal0ne first');
+      vscode.window.showErrorMessage('Please login to Signal0ne first or select the issue you are trying to solve.');
       return;
     }
     vscode.window.showInformationMessage('Fixing the selected code snippet, please wait...');
     const newCodeObject = await issuesTreeView.fixCode(codeSnippetContext);
 
 
-    if (newCodeObject.newCode === '') {
+    if (newCodeObject.explanation === '') {
       vscode.window.showErrorMessage(
         'Failed to fix the selected code. Please try again with different code snippet.'
       );
       return;
     }
-
-    editor.edit((editBuilder) => {
-      editBuilder.replace(selection, newCodeObject.newCode);
-    })
-    vscode.commands.executeCommand('workbench.files.action.compareWithSaved', document.uri);
-    createProposedCodeSolutionView(newCodeObject.explanation);
-    vscode.window.showInformationMessage('Code fixed successfully');
+    const focusedIssue = issuesTreeView.getFocusedIssue();
+    createProposedCodeSolutionView(
+      newCodeObject.explanation, 
+      await issuesTreeView.getIssueDetails(focusedIssue),
+      signal0neProvider
+    );
+    vscode.window.showInformationMessage('Proposed code fix generated successfully');
   });
 }
 
