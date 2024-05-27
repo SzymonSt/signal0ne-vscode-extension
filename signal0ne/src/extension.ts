@@ -142,8 +142,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
 
     if (newCodeObject.explanation === '') {
+      const errMessage = newCodeObject.error || 'Failed to fix the selected code. Please try again with different code snippet.';
       vscode.window.showErrorMessage(
-        'Failed to fix the selected code. Please try again with different code snippet.'
+        errMessage
       );
       return;
     }
