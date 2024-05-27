@@ -20,7 +20,10 @@ export async function activate(context: vscode.ExtensionContext) {
     if (sessions.length > 0 && sessions[0]) {
       const refreshToken = await signal0neProvider.getAndValidateRefreshToken();
 
-      if (!refreshToken) return;
+      if (!refreshToken){
+        teardownExtension();
+        return;
+      }
 
       const isAccessTokenValid = await signal0neProvider.validateAccessToken(
         sessions[0]
