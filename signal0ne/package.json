@@ -1,5 +1,5 @@
 {
-  "name": "signal0ne",
+  "name": "Signal0ne",
   "displayName": "Signal0ne",
   "description": "AI debugging assistant",
   "version": "0.0.1",
@@ -63,14 +63,14 @@
     "views": {
       "signal0ne": [
         {
-          "icon": "resources/signal_img_logo.svg",
+          "icon": "resources/signal_img_logo.png",
           "id": "signal0neIssue",
           "name": "Issues",
           "type": "tree",
           "when": "showIssuesView"
         },
         {
-          "icon": "resources/signal_img_logo.svg",
+          "icon": "resources/signal_img_logo.png",
           "id": "signal0ne",
           "name": "Signal0ne",
           "type": "tree"
@@ -80,7 +80,7 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "icon": "resources/signal_img_logo.svg",
+          "icon": "resources/signal_img_logo.png",
           "id": "signal0ne",
           "title": "Signal0ne"
         }
