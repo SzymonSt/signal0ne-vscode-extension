@@ -6,11 +6,11 @@ See the demo at: https://signaloneai.com/#pro
 
 - Issue analysis
 
-- Code fix tip(PRO only)
+- Code fix tips (PRO only)
 
 # How to use it
 
-#### Download docker desktop extension to run agent that will discover issues.
+#### Download docker desktop extension to run agent that will discover issues from your docker containers.
 https://open.docker.com/extensions/marketplace?extensionId=signaloneai/signalone-extension
 ![Docker Desktop](https://github.com/Signal0ne/signal0ne-vscode-extension/blob/8933d27d0a717ac7d823e877d74833c58bd374cc/signal0ne/resources/docker_desktop_marketplace.png?raw=true)
 
@@ -22,7 +22,7 @@ https://open.docker.com/extensions/marketplace?extensionId=signaloneai/signalone
 
 ![Issues View](https://github.com/Signal0ne/signal0ne-vscode-extension/blob/3fcee544f0ec251166c49e483133a1c73c64ae10/signal0ne/resources/vscode_issues_view.png?raw=true)
 
-#### Add code to context with "Code fix" feature to get proposed solution of issue in your code
+#### Select the issue from the list and select the code block that you think can be related to the issue and select the 'Fix code' option from the context menu to try fix the issue using Signal0ne extension
 
 ![Codefix1](https://github.com/Signal0ne/signal0ne-vscode-extension/blob/3fcee544f0ec251166c49e483133a1c73c64ae10/signal0ne/resources/vscode_codefix_view_2.png?raw=true)
 
