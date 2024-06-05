@@ -20,7 +20,9 @@ export async function createProposedCodeSolutionView(explanation: any,
             'signal0ne',
             'Code Fix',
             vsc.ViewColumn.Beside,
-            {}
+            {
+              enableScripts: true
+            }
           );
     
          panel.onDidDispose(() => {
