@@ -1,8 +1,10 @@
 {
   "name": "Signal0ne",
   "displayName": "Signal0ne",
+  "publisher": "Signal0ne",
   "description": "AI debugging assistant",
-  "version": "0.0.1",
+  "version": "0.1.2",
+  "icon": "resources/signal_img_logo.png",
   "engines": {
     "vscode": "^1.87.0"
   },
